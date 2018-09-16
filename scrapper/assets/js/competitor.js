@@ -163,6 +163,8 @@ jQuery(document).ready(function() {
         
         $('.header-sales').html(STATE.days + ' Days Sales');
         
+        checkWatching(seller_data['seller_id']);
+
         if ($.fn.dataTable.isDataTable( '#items' )) {
             $('.results').hide();
             $('#items').DataTable().destroy();
@@ -217,6 +219,9 @@ jQuery(document).ready(function() {
                     $('[data-key="country"]').html(resp['data']['country']);
                     $('.seller-badges').show();
                     get_seller_info(name, range);
+
+                    checkWatching(resp['data']['seller_id']);
+
 				} else if (resp['status'] == 'pending_init') {
                     get_seller_info(name, range);
                 } else {
