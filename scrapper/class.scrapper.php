@@ -501,15 +501,19 @@ class Scrapper {
                         $tans_items = $items_result['trans'];
                     }
                 }
-                if ($sellers) {
-                    $sellers = array_merge($sellers, $items_result['sellers']);
-                } else {
-                    $sellers = $items_result['sellers'];
+                if ($items_result['sellers']) {
+                    if ($sellers) {
+                        $sellers = array_merge($sellers, $items_result['sellers']);
+                    } else {
+                        $sellers = $items_result['sellers'];
+                    }
                 }
-                if ($seller_country) {
-                    $seller_country = array_merge($seller_country, $items_result['seller_country']);
-                } else {
-                    $seller_country = $items_result['seller_country'];
+                if ($items_result['seller_country']) {
+                    if ($seller_country) {
+                        $seller_country = array_merge($seller_country, $items_result['seller_country']);
+                    } else {
+                        $seller_country = $items_result['seller_country'];
+                    }
                 }
                 $item_count = 0;
                 $curl_items = null;
@@ -531,10 +535,12 @@ class Scrapper {
                     $sellers = $items_result['sellers'];
                 }
             }
-            if ($seller_country) {
-                $seller_country = array_merge($seller_country, $items_result['seller_country']);
-            } else {
-                $seller_country = $items_result['seller_country'];
+            if ($items_result['seller_country']) {
+                if ($seller_country) {
+                    $seller_country = array_merge($seller_country, $items_result['seller_country']);
+                } else {
+                    $seller_country = $items_result['seller_country'];
+                }
             }
         }
         
@@ -638,24 +644,26 @@ class Scrapper {
         if ($mh2 = curl_multi_init()) {
             $item_trans_item_ids = array();
             foreach ($items as $item_id => $item_info) {
-                if ($item_trans_extra_info[$item_id]['page_count'] > 1) {
-                    for ($page_no = 2; $page_no <= $item_trans_extra_info[$item_id]['page_count']; $page_no++) {
-                        $item_id_plus_page = $item_id . "page" . $page_no;
-                        if ($curl[$item_id_plus_page] = curl_init()) {
-                            $app_no = $this->get_api_call_app_no("GetItemTransactions");
-                            $trans_url_head = get_item_trans_req_head($country, $app_no);
-                            $trans_url_body = get_item_trans_req_body($item_id, $item_info['period'], $page_no, $app_no);
-                            curl_setopt($curl[$item_id_plus_page], CURLOPT_URL, EBAY_API_END_POINT);
-                            curl_setopt($curl[$item_id_plus_page], CURLOPT_HEADER, 1);
-                            curl_setopt($curl[$item_id_plus_page], CURLOPT_HTTPHEADER, $trans_url_head);
-                            curl_setopt($curl[$item_id_plus_page], CURLOPT_POSTFIELDS, $trans_url_body);
-                            curl_setopt($curl[$item_id_plus_page], CURLOPT_TIMEOUT, 60);
-                            curl_setopt($curl[$item_id_plus_page], CURLOPT_RETURNTRANSFER, 1);
-                            
-                            curl_setopt($curl[$item_id_plus_page], CURLOPT_FOLLOWLOCATION, 1);
-                            
-                            curl_multi_add_handle($mh2, $curl[$item_id_plus_page]);
-                            $item_trans_item_ids[(int)$curl[$item_id_plus_page]] = $item_id;
+                if (isset($item_trans_extra_info[$item_id]['page_count'])) {
+                    if ($item_trans_extra_info[$item_id]['page_count'] > 1) {
+                        for ($page_no = 2; $page_no <= $item_trans_extra_info[$item_id]['page_count']; $page_no++) {
+                            $item_id_plus_page = $item_id . "page" . $page_no;
+                            if ($curl[$item_id_plus_page] = curl_init()) {
+                                $app_no = $this->get_api_call_app_no("GetItemTransactions");
+                                $trans_url_head = get_item_trans_req_head($country, $app_no);
+                                $trans_url_body = get_item_trans_req_body($item_id, $item_info['period'], $page_no, $app_no);
+                                curl_setopt($curl[$item_id_plus_page], CURLOPT_URL, EBAY_API_END_POINT);
+                                curl_setopt($curl[$item_id_plus_page], CURLOPT_HEADER, 1);
+                                curl_setopt($curl[$item_id_plus_page], CURLOPT_HTTPHEADER, $trans_url_head);
+                                curl_setopt($curl[$item_id_plus_page], CURLOPT_POSTFIELDS, $trans_url_body);
+                                curl_setopt($curl[$item_id_plus_page], CURLOPT_TIMEOUT, 60);
+                                curl_setopt($curl[$item_id_plus_page], CURLOPT_RETURNTRANSFER, 1);
+                                
+                                curl_setopt($curl[$item_id_plus_page], CURLOPT_FOLLOWLOCATION, 1);
+                                
+                                curl_multi_add_handle($mh2, $curl[$item_id_plus_page]);
+                                $item_trans_item_ids[(int)$curl[$item_id_plus_page]] = $item_id;
+                            }
                         }
                     }
                 }
