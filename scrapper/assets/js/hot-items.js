@@ -77,34 +77,35 @@ jQuery(document).ready(function() {
         }
     })
     
-    $('#find_items').click(function() {
+    $('#find_items').click(function() {        
+        var keyword = $("#keyword").val();
+        var category = $("#category").val();
+        var fb_min = $( "#fb_min" ).val();
+        var fb_max = $( "#fb_max" ).val();
+        var price_min = $( "#price_min" ).val();
+        var price_max = $( "#price_max" ).val();
+        var quantity_min = $( "#quantity_min" ).val();
+        var quantity_max = $( "#quantity_max" ).val();
+        var sold_min = $( "#sold_min" ).val();
+        var sold_max = $( "#sold_max" ).val();
+        var sold_period = $("#sold_period").val();
+        item_count = $("#item_count").val();
+        var cond_type = 0;
         
-		$.getJSON(BASE_URL + 'index.php/api/check_api_available/', function(resp) {
-			if (resp == 0) {
-			    alert("You have already done the limited counts per one day.\nYou can do it after 24 hours.\nIf you want to increase the limited counts, please update your membership level!");
-			} else {
-                var keyword = $("#keyword").val();
-                var category = $("#category").val();
-                var fb_min = $( "#fb_min" ).val();
-                var fb_max = $( "#fb_max" ).val();
-                var price_min = $( "#price_min" ).val();
-                var price_max = $( "#price_max" ).val();
-                var quantity_min = $( "#quantity_min" ).val();
-                var quantity_max = $( "#quantity_max" ).val();
-                var sold_min = $( "#sold_min" ).val();
-                var sold_max = $( "#sold_max" ).val();
-                var sold_period = $("#sold_period").val();
-                item_count = $("#item_count").val();
-                var cond_type = 0;
-                
-                data = { 'action' : 'find_hot_items', 'keyword' : keyword, 'category' : category, 'fb_min' : fb_min, 'fb_max' : fb_max,
-                        'price_min' : price_min, 'price_max' : price_max, 'quantity_min' : quantity_min, 'quantity_max' : quantity_max,
-                        'sold_min' : sold_min, 'sold_max' : sold_max, 'cond_type' : cond_type, 'country' : country, 'sold_period' : sold_period, 'item_count' : item_count };
-                
-                //alert(keyword + ":" + category + ":" + fb_min + ":" + fb_max + ":" + price_min + ":" + price_max + ":" + quantity_min + ":" + quantity_max + ":" + sold_min + ":" + sold_max + ":" + cond_type + ":" + country + ":" + sold_period + ":" + item_count);
-                if (keyword !== "")
-                {
-                    if ($("#item_count").val() <= item_count_threshold) {
+        data = { 'action' : 'find_hot_items', 'keyword' : keyword, 'category' : category, 'fb_min' : fb_min, 'fb_max' : fb_max,
+                'price_min' : price_min, 'price_max' : price_max, 'quantity_min' : quantity_min, 'quantity_max' : quantity_max,
+                'sold_min' : sold_min, 'sold_max' : sold_max, 'cond_type' : cond_type, 'country' : country, 'sold_period' : sold_period, 'item_count' : item_count };
+        
+        //alert(keyword + ":" + category + ":" + fb_min + ":" + fb_max + ":" + price_min + ":" + price_max + ":" + quantity_min + ":" + quantity_max + ":" + sold_min + ":" + sold_max + ":" + cond_type + ":" + country + ":" + sold_period + ":" + item_count);
+        if (keyword !== "")
+        {
+            if ($("#item_count").val() <= item_count_threshold) {
+                $.getJSON(BASE_URL + 'index.php/api/check_api_available/', function(resp1) {
+                    if (resp1 === 1) {
+                        alert("You have already done the limited counts per one day.\nYou can do it after 24 hours.\nIf you want to increase the limited counts, please update your membership level!");
+                    } else if (resp1 === 2) {
+                        alert("You have already done the limited counts per one day.\nYou can do it after 24 hours.\n");
+                    } else if (resp1 === 0) {
                         parent.showloader();
                         $('#hot_items_body').addClass('hidden');
                         $('#hot_items_body').css('display', 'none');
@@ -143,15 +144,14 @@ jQuery(document).ready(function() {
                             parent.hideloader();
                             data_table.columns.adjust().draw();
                         });
-                    } else {
-                        alert("Please insert the Item Number less than 600!");
-                    }
-                    //parent.showloader();
-                } else {
-                    alert("Please insert the keyword!");
-                }
-			}
-		});
+                    }    
+		        });
+            } else {
+                alert("Please insert the Item Number less than 600!");
+            }
+        } else {
+            alert("Please insert the keyword!");
+        }
     });
     
     data_table.on( 'draw', function () {

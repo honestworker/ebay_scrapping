@@ -198,7 +198,8 @@ class Scrapper {
                                     
                                     $item_id = $item_info['ItemID'];
                                     
-                                    $image = $title = $description = $category_name = $location = $currency = $seller_name = $item_country = $listing = $upload_date = $end_date = $condition_name = "";
+                                    //$image = $title = $description = $category_name = $location = $currency = $seller_name = $item_country = $listing = $upload_date = $end_date = $condition_name = "";
+                                    $image = $title = $category_name = $location = $currency = $seller_name = $item_country = $listing = $upload_date = $end_date = $condition_name = "";
                                     $category_id = $seller_feddback_score = $is_multi = $quantity = $total_sold = $price = $condition_id = 0;
                                     
                                     if (!$items[$item_id]['completed']) {
@@ -235,54 +236,54 @@ class Scrapper {
                                         }
                                         $title =  (isset($item_info['Title'])) ? str_replace("\n", "", str_replace("'", "", $item_info['Title'])) : "";
                                         
-                                        $description_str = (isset($item_info['Description'])) ?  $item_info['Description'] : "";
-                                        $description = "";
+                                        //$description_str = (isset($item_info['Description'])) ?  $item_info['Description'] : "";
+                                        //$description = "";
                                         /*
                                             <text> .body_container </text>
                                             2 3  4
                                                   1
                                                    0
                                         */
-                                        if ($description_str) {
-                                            $str_flag = $style_flag = 0;
-                                            $sub_str = "";
-                                            for ($str_no = 0; $str_no < strlen($description_str); $str_no++) {
-                                                if ($description_str[$str_no] == '<') {
-                                                    $sub_str = "";
-                                                    $str_flag = 2;
-                                                } else if ($description_str[$str_no] == '>') {
-                                                    if ($sub_str == '/style') {
-                                                        $style_flag = 0;
-                                                    }
-                                                    $sub_str = "";
-                                                    $str_flag = 4;
-                                                } else {
-                                                    if ($str_flag == 2) {
-                                                        $str_flag = 3;
-                                                    } else if ($str_flag == 4) {
-                                                        $str_flag = 1;
-                                                    } else if ($str_flag == 1) {
-                                                        $str_flag = 0;
-                                                    }
-                                                }
-                                                if ($str_flag == 3) {
-                                                    $sub_str = $sub_str . $description_str[$str_no];
-                                                    if ($sub_str == 'style') {
-                                                        $style_flag = 1;
-                                                    }
-                                                }
-                                                if ($style_flag == 0) {
-                                                    if ($str_flag == 0) {
-                                                        $description = $description . $description_str[$str_no];
-                                                    } else if ($str_flag == 1) {
-                                                        $description = $description . ' ' . $description_str[$str_no];
-                                                    }
-                                                }
-                                            }
-                                        }
-                                        $description = str_replace(array("\t", "\r", "\n", "'"), " ", $description);
-                                        $description = preg_replace('/\s{2,}/', ' ', $description);
-                                        $description = trim($description);
+                                        // if ($description_str) {
+                                        //     $str_flag = $style_flag = 0;
+                                        //     $sub_str = "";
+                                        //     for ($str_no = 0; $str_no < strlen($description_str); $str_no++) {
+                                        //         if ($description_str[$str_no] == '<') {
+                                        //             $sub_str = "";
+                                        //             $str_flag = 2;
+                                        //         } else if ($description_str[$str_no] == '>') {
+                                        //             if ($sub_str == '/style') {
+                                        //                 $style_flag = 0;
+                                        //             }
+                                        //             $sub_str = "";
+                                        //             $str_flag = 4;
+                                        //         } else {
+                                        //             if ($str_flag == 2) {
+                                        //                 $str_flag = 3;
+                                        //             } else if ($str_flag == 4) {
+                                        //                 $str_flag = 1;
+                                        //             } else if ($str_flag == 1) {
+                                        //                 $str_flag = 0;
+                                        //             }
+                                        //         }
+                                        //         if ($str_flag == 3) {
+                                        //             $sub_str = $sub_str . $description_str[$str_no];
+                                        //             if ($sub_str == 'style') {
+                                        //                 $style_flag = 1;
+                                        //             }
+                                        //         }
+                                        //         if ($style_flag == 0) {
+                                        //             if ($str_flag == 0) {
+                                        //                 $description = $description . $description_str[$str_no];
+                                        //             } else if ($str_flag == 1) {
+                                        //                 $description = $description . ' ' . $description_str[$str_no];
+                                        //             }
+                                        //         }
+                                        //     }
+                                        // }
+                                        // $description = str_replace(array("\t", "\r", "\n", "'"), " ", $description);
+                                        // $description = preg_replace('/\s{2,}/', ' ', $description);
+                                        // $description = trim($description);
                                         
                                         $category_id = (isset($item_info['PrimaryCategoryID'])) ? $item_info['PrimaryCategoryID'] : 0;
                                         $category_name = (isset($item_info['PrimaryCategoryName'])) ? str_replace("'", "", trim($item_info['PrimaryCategoryName'])) : "";
@@ -364,7 +365,7 @@ class Scrapper {
                                                     'url' => $url,
                                                     'image' => $image,
                                                     'title' => $title,
-                                                    'description' => $description,
+                                                    //'description' => $description,
                                                     'category_id' => $category_id,
                                                     'category_name' => $category_name,
                                                     'quantity' => $quantity,
@@ -395,7 +396,7 @@ class Scrapper {
                                                     'url' => $url,
                                                     'image' => $image,
                                                     'title' => $title,
-                                                    'description' => $description,
+                                                    //'description' => $description,
                                                     'category_id' => $category_id,
                                                     'category_name' => $category_name,
                                                     'quantity' => $quantity,
@@ -1627,60 +1628,61 @@ class Scrapper {
             
             if ($find_items) {
                 foreach ($find_items as $item_id) {
-                    if ($row = $this->db->get_row("SELECT title, description, is_multi, seller_country, image, url, category_name, price, currency, seller_name, seller_feedback, total_sold, trans_checked, trans_update, trans_completed, seller_id, quantity FROM ds_ebay_items WHERE item_id = '{$item_id}'")) {
+                    //if ($row = $this->db->get_row("SELECT title, description, is_multi, seller_country, image, url, category_name, price, currency, seller_name, seller_feedback, total_sold, trans_checked, trans_update, trans_completed, seller_id, quantity FROM ds_ebay_items WHERE item_id = '{$item_id}'")) {
+                    if ($row = $this->db->get_row("SELECT title, is_multi, seller_country, image, url, category_name, price, currency, seller_name, seller_feedback, total_sold, trans_checked, trans_update, trans_completed, seller_id, quantity FROM ds_ebay_items WHERE item_id = '{$item_id}'")) {
                         /*
                             title :                         0
-                            description :                   1
-                            is_multi :                      2
-                            seller_country :                3
-                            image :                         4
-                            url :                           5
-                            category_name :                 6
-                            price :                         7
-                            currency :                      8
-                            seller_name :                   9
-                            seller_feedback :               10
-                            total_sold :                    11
-                            trans_checked :                 12
-                            trans_update :                  13
-                            trans_completed :               14
-                            seller_id :                     15
-                            quantity :                      16
+                            //description :                   1
+                            is_multi :                      1
+                            seller_country :                2
+                            image :                         3
+                            url :                           4
+                            category_name :                 5
+                            price :                         6
+                            currency :                      7
+                            seller_name :                   8
+                            seller_feedback :               9
+                            total_sold :                    10
+                            trans_checked :                 11
+                            trans_update :                  12
+                            trans_completed :               13
+                            seller_id :                     14
+                            quantity :                      15
                         */
-                        if ($row[2] == 0) {
+                        if ($row[1] == 0) {
                             if ((int)SELLER_CHINA_AVAILABLE == 0) {
-                                if (strtolower($row[3]) == 'china') {
+                                if (strtolower($row[2]) == 'china') {
                                     continue;
                                 }
                             }
-                            $quantity = (int)$row[16] - (int)$row[11];
+                            $quantity = (int)$row[15] - (int)$row[10];
                             if ($quantity < (int)$find_conditions_array['quantity_min'] || $quantity > (int)$find_conditions_array['quantity_max']) {
                                 continue;
                             }
                             if ((int)DESCRIPTION_CHECK_AVAILABLE == 1) {
-                                $title_split = explode(" ", $row[0]);
-                                $description = $row[1];
-                                $title_no = 0;
-                                $three_words = "";
-                                foreach ($title_split as $title_word) {
-                                    if ($title_no == 0) {
-                                        $three_words = $title_word;
-                                    } else {
-                                        if ($title_no < 3) {
-                                            $three_words = $three_words . " " . $title_word;
-                                        }
-                                    }
-                                    $title_no = $title_no + 1;
-                                }
-                                if (strpos(strtolower($description), strtolower($three_words)) == false) {
-                                    continue;
-                                }
+                                // $title_split = explode(" ", $row[0]);
+                                // $description = $row[1];
+                                // $title_no = 0;
+                                // $three_words = "";
+                                // foreach ($title_split as $title_word) {
+                                //     if ($title_no == 0) {
+                                //         $three_words = $title_word;
+                                //     } else {
+                                //         if ($title_no < 3) {
+                                //             $three_words = $three_words . " " . $title_word;
+                                //         }
+                                //     }
+                                //     $title_no = $title_no + 1;
+                                // }
+                                // if (strpos(strtolower($description), strtolower($three_words)) == false) {
+                                //     continue;
+                                // }
                             }
                             if ($find_conditions_array['sold_period']) {
                                 $update_flag = 0;
-                                if ($row[14]) {
-                                    if ($row[13] < $date_before) {
-                                        if ($row[12] == 1) {
+                                if ($row[13]) {
+                                    if ($row[12] < $date_before) {
+                                        if ($row[11] == 1) {
                                             $update_trans_items[] = $item_id;
                                             $update_flag = 1;
                                         }
@@ -1706,13 +1708,13 @@ class Scrapper {
                                                 $result[] = array(
                                                     'item_id'           => $item_id,
                                                     'title'             => $row[0],
-                                                    'image'             => $row[4],
-                                                    'url'               => $row[5],
-                                                    'category'          => $row[6],
-                                                    'price'             => $row[7],
-                                                    'currency'          => $row[8],
-                                                    'seller'            => $row[9],
-                                                    'seller_feedback'   => $row[10],
+                                                    'image'             => $row[3],
+                                                    'url'               => $row[4],
+                                                    'category'          => $row[5],
+                                                    'price'             => $row[6],
+                                                    'currency'          => $row[7],
+                                                    'seller'            => $row[8],
+                                                    'seller_feedback'   => $row[9],
                                                     'sold'              => $period_sold
                                                 );
                                             }
@@ -1720,7 +1722,7 @@ class Scrapper {
                                     }
                                 }
                             } else {
-                                if ($row[11] >= $find_conditions_array['sold_min'] && $row[11] <= $find_conditions_array['sold_max']) {
+                                if ($row[10] >= $find_conditions_array['sold_min'] && $row[10] <= $find_conditions_array['sold_max']) {
                                     $duplicator_flag = 0;
                                     if ($result) {
                                         foreach ($result as $result_item) {
@@ -1734,14 +1736,14 @@ class Scrapper {
                                         $result[] = array(
                                             'item_id'           => $item_id,
                                             'title'             => $row[0],
-                                            'image'             => $row[4],
-                                            'url'               => $row[5],
-                                            'category'          => $row[6],
-                                            'price'             => $row[7],
-                                            'currency'          => $row[8],
-                                            'seller'            => $row[9],
-                                            'seller_feedback'   => $row[10],
-                                            'sold'              => $row[11]
+                                            'image'             => $row[3],
+                                            'url'               => $row[4],
+                                            'category'          => $row[5],
+                                            'price'             => $row[6],
+                                            'currency'          => $row[7],
+                                            'seller'            => $row[8],
+                                            'seller_feedback'   => $row[9],
+                                            'sold'              => $row[10]
                                         );
                                     }
                                 }
@@ -1784,19 +1786,20 @@ class Scrapper {
                                     }
                                 }
                                 if (!$duplicator_flag) {
-                                    if ($row = $this->db->get_row("SELECT title, description, is_multi, seller_country, image, url, category_name, price, currency, seller_name, seller_feedback, total_sold, trans_checked, trans_update, trans_completed, seller_id FROM ds_ebay_items WHERE item_id = '{$item_id}'")) {
+                                    //if ($row = $this->db->get_row("SELECT title, description, is_multi, seller_country, image, url, category_name, price, currency, seller_name, seller_feedback, total_sold, trans_checked, trans_update, trans_completed, seller_id FROM ds_ebay_items WHERE item_id = '{$item_id}'")) {
+                                    if ($row = $this->db->get_row("SELECT title, is_multi, seller_country, image, url, category_name, price, currency, seller_name, seller_feedback, total_sold, trans_checked, trans_update, trans_completed, seller_id FROM ds_ebay_items WHERE item_id = '{$item_id}'")) {
                                         if ($solds = $this->db->get_row("SELECT SUM(quantity) FROM ds_ebay_item_trans WHERE trans_date >= '{$trans_before}' AND item_id = '{$item_id}'")) {
                                             $period_sold = (int)$solds[0];
                                             $result[] = array(
                                                 'item_id'           => $item_id,
                                                 'title'             => $row[0],
-                                                'image'             => $row[4],
-                                                'url'               => $row[5],
-                                                'category'          => $row[6],
-                                                'price'             => $row[7],
-                                                'currency'          => $row[8],
-                                                'seller'            => $row[9],
-                                                'seller_feedback'   => $row[10],
+                                                'image'             => $row[3],
+                                                'url'               => $row[4],
+                                                'category'          => $row[5],
+                                                'price'             => $row[6],
+                                                'currency'          => $row[7],
+                                                'seller'            => $row[8],
+                                                'seller_feedback'   => $row[9],
                                                 'sold'              => $period_sold
                                             );
                                         }
@@ -1923,54 +1926,55 @@ class Scrapper {
                                         
                                         if ($find_items) {
                                             foreach ($find_items as $item_id) {
-                                                if ($row = $this->db->get_row("SELECT title, description, is_multi, seller_country, image, url, category_name, price, currency, seller_name, seller_feedback, total_sold, trans_checked, trans_update, trans_completed, seller_id, quantity FROM ds_ebay_items WHERE item_id = '{$item_id}'")) {
+                                                if ($row = $this->db->get_row("SELECT title, is_multi, seller_country, image, url, category_name, price, currency, seller_name, seller_feedback, total_sold, trans_checked, trans_update, trans_completed, seller_id, quantity FROM ds_ebay_items WHERE item_id = '{$item_id}'")) {
+                                                //if ($row = $this->db->get_row("SELECT title, description, is_multi, seller_country, image, url, category_name, price, currency, seller_name, seller_feedback, total_sold, trans_checked, trans_update, trans_completed, seller_id, quantity FROM ds_ebay_items WHERE item_id = '{$item_id}'")) {
                                                     /*
                                                         title :                         0
-                                                        description :                   1
-                                                        is_multi :                      2
-                                                        seller_country :                3
-                                                        image :                         4
-                                                        url :                           5
-                                                        category_name :                 6
-                                                        price :                         7
-                                                        currency :                      8
-                                                        seller_name :                   9
-                                                        seller_feedback :               10
-                                                        total_sold :                    11
-                                                        trans_checked :                 12
-                                                        trans_update :                  13
-                                                        trans_completed :               14
-                                                        seller_id :                     15
-                                                        quantity :                      16
+                                                        //description :                   1
+                                                        is_multi :                      1
+                                                        seller_country :                2
+                                                        image :                         3
+                                                        url :                           4
+                                                        category_name :                 5
+                                                        price :                         6
+                                                        currency :                      7
+                                                        seller_name :                   8
+                                                        seller_feedback :               9
+                                                        total_sold :                    10
+                                                        trans_checked :                 11
+                                                        trans_update :                  12
+                                                        trans_completed :               13
+                                                        seller_id :                     14
+                                                        quantity :                      15
                                                     */
-                                                    if ($row[2] == 0) {
+                                                    if ($row[1] == 0) {
                                                         if ((int)SELLER_CHINA_AVAILABLE == 0) {
-                                                            if (strtolower($row[3]) == 'china') {
+                                                            if (strtolower($row[2]) == 'china') {
                                                                 continue;
                                                             }
                                                         }
-                                                        $quantity = (int)$row[16] - (int)$row[11];
+                                                        $quantity = (int)$row[15] - (int)$row[10];
                                                         if ($quantity < (int)$find_conditions_array['quantity_min'] || $quantity > (int)$find_conditions_array['quantity_max']) {
                                                             continue;
                                                         }
                                                         if ((int)DESCRIPTION_CHECK_AVAILABLE == 1) {
-                                                            $title_split = explode(" ", $row[0]);
-                                                            $description = $row[1];
-                                                            $title_no = 0;
-                                                            $three_words = "";
-                                                            foreach ($title_split as $title_word) {
-                                                                if ($title_no == 0) {
-                                                                    $three_words = $title_word;
-                                                                } else {
-                                                                    if ($title_no < 3) {
-                                                                        $three_words = $three_words . " " . $title_word;
-                                                                    }
-                                                                }
-                                                                $title_no = $title_no + 1;
-                                                            }
-                                                            if (strpos(strtolower($description), strtolower($three_words)) == false) {
-                                                                continue;
-                                                            }
+                                                            // $title_split = explode(" ", $row[0]);
+                                                            //$description = $row[1];
+                                                            // $title_no = 0;
+                                                            // $three_words = "";
+                                                            // foreach ($title_split as $title_word) {
+                                                            //     if ($title_no == 0) {
+                                                            //         $three_words = $title_word;
+                                                            //     } else {
+                                                            //         if ($title_no < 3) {
+                                                            //             $three_words = $three_words . " " . $title_word;
+                                                            //         }
+                                                            //     }
+                                                            //     $title_no = $title_no + 1;
+                                                            // }
+                                                            // if (strpos(strtolower($description), strtolower($three_words)) == false) {
+                                                            //     continue;
+                                                            // }
                                                         }
                                                         if ($find_conditions_array['sold_period']) {
                                                             $update_flag = 0;
@@ -2019,7 +2023,7 @@ class Scrapper {
                                                                 }
                                                             }
                                                         } else {
-                                                            if ($row[11] >= $find_conditions_array['sold_min'] && $row[11] <= $find_conditions_array['sold_max']) {
+                                                            if ($row[10] >= $find_conditions_array['sold_min'] && $row[10] <= $find_conditions_array['sold_max']) {
                                                                 $duplicator_flag = 0;
                                                                 if ($result) {
                                                                     foreach ($result as $result_item) {
@@ -2035,14 +2039,14 @@ class Scrapper {
                                                                         $result[] = array(
                                                                             'item_id'           => $item_id,
                                                                             'title'             => $row[0],
-                                                                            'image'             => $row[4],
-                                                                            'url'               => $row[5],
-                                                                            'category'          => $row[6],
-                                                                            'price'             => $row[7],
-                                                                            'currency'          => $row[8],
-                                                                            'seller'            => $row[9],
-                                                                            'seller_feedback'   => $row[10],
-                                                                            'sold'              => $row[11]
+                                                                            'image'             => $row[3],
+                                                                            'url'               => $row[4],
+                                                                            'category'          => $row[5],
+                                                                            'price'             => $row[6],
+                                                                            'currency'          => $row[7],
+                                                                            'seller'            => $row[8],
+                                                                            'seller_feedback'   => $row[9],
+                                                                            'sold'              => $row[10]
                                                                         );
                                                                     }
                                                                 }
@@ -2086,7 +2090,8 @@ class Scrapper {
                                                                 }
                                                             }
                                                             if (!$duplicator_flag) {
-                                                                if ($row = $this->db->get_row("SELECT title, description, is_multi, seller_country, image, url, category_name, price, currency, seller_name, seller_feedback, total_sold, trans_checked, trans_update, trans_completed, seller_id FROM ds_ebay_items WHERE item_id = '{$item_id}'")) {
+                                                                //if ($row = $this->db->get_row("SELECT title, description, is_multi, seller_country, image, url, category_name, price, currency, seller_name, seller_feedback, total_sold, trans_checked, trans_update, trans_completed, seller_id FROM ds_ebay_items WHERE item_id = '{$item_id}'")) {
+                                                                if ($row = $this->db->get_row("SELECT title, is_multi, seller_country, image, url, category_name, price, currency, seller_name, seller_feedback, total_sold, trans_checked, trans_update, trans_completed, seller_id FROM ds_ebay_items WHERE item_id = '{$item_id}'")) {
                                                                     $item_no = $item_no + 1;
                                                                     if ($item_no <= $items_count) {
                                                                         if ($solds = $this->db->get_row("SELECT SUM(quantity) FROM ds_ebay_item_trans WHERE trans_date >= '{$trans_before}' AND item_id = '{$item_id}'")) {
@@ -2094,13 +2099,13 @@ class Scrapper {
                                                                             $result[] = array(
                                                                                 'item_id'           => $item_id,
                                                                                 'title'             => $row[0],
-                                                                                'image'             => $row[4],
-                                                                                'url'               => $row[5],
-                                                                                'category'          => $row[6],
-                                                                                'price'             => $row[7],
-                                                                                'currency'          => $row[8],
-                                                                                'seller'            => $row[9],
-                                                                                'seller_feedback'   => $row[10],
+                                                                                'image'             => $row[3],
+                                                                                'url'               => $row[4],
+                                                                                'category'          => $row[5],
+                                                                                'price'             => $row[6],
+                                                                                'currency'          => $row[7],
+                                                                                'seller'            => $row[8],
+                                                                                'seller_feedback'   => $row[9],
                                                                                 'sold'              => $period_sold
                                                                             );
                                                                         }

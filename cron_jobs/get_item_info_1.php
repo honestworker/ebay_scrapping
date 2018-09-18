@@ -74,7 +74,7 @@
                                             $image = "https://ir.ebaystatic.com/pictures/aw/pics/nextGenVit/imgNoImg.gif";
                                         }
                                         $title =  (isset($item_info['Title'])) ? str_replace("\n", "", str_replace("'", "", $item_info['Title'])) : "";
-                                        $description = (isset($item_info['Description'])) ?  str_replace("\n", "", str_replace("'", "", $item_info['Description'])) : "";
+                                        //$description = (isset($item_info['Description'])) ?  str_replace("\n", "", str_replace("'", "", $item_info['Description'])) : "";
                                         $category_id = (isset($item_info['PrimaryCategoryID'])) ? $item_info['PrimaryCategoryID'] : 0;
                                         $category_name = (isset($item_info['PrimaryCategoryName'])) ? str_replace("'", "", trim($item_info['PrimaryCategoryName'])) : "";
                                         $location = (isset($item_info['Location'])) ? str_replace("\n", "", str_replace("'", "", trim($item_info['Location']))) : "";
@@ -147,7 +147,7 @@
                                                     'url' => $url,
                                                     'image' => $image,
                                                     'title' => $title,
-                                                    'description' => $description,
+                                                    //'description' => $description,
                                                     'category_id' => $category_id,
                                                     'category_name' => $category_name,
                                                     'quantity' => $quantity,
@@ -179,7 +179,7 @@
                                                     'url' => $url,
                                                     'image' => $image,
                                                     'title' => $title,
-                                                    'description' => $description,
+                                                    //'description' => $description,
                                                     'category_id' => $category_id,
                                                     'category_name' => $category_name,
                                                     'quantity' => $quantity,
