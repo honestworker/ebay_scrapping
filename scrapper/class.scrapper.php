@@ -2008,13 +2008,13 @@ class Scrapper {
                                                                                 $result[] = array(
                                                                                     'item_id'           => $item_id,
                                                                                     'title'             => $row[0],
-                                                                                    'image'             => $row[4],
-                                                                                    'url'               => $row[5],
-                                                                                    'category'          => $row[6],
-                                                                                    'price'             => $row[7],
-                                                                                    'currency'          => $row[8],
-                                                                                    'seller'            => $row[9],
-                                                                                    'seller_feedback'   => $row[10],
+                                                                                    'image'             => $row[3],
+                                                                                    'url'               => $row[4],
+                                                                                    'category'          => $row[5],
+                                                                                    'price'             => $row[6],
+                                                                                    'currency'          => $row[7],
+                                                                                    'seller'            => $row[8],
+                                                                                    'seller_feedback'   => $row[9],
                                                                                     'sold'              => $period_sold
                                                                                 );    
                                                                             } 
