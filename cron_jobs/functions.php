@@ -12,11 +12,6 @@
     require_once( CURRENT_DIR .                     "./simple_html_dom.php" );
     require_once( CURRENT_DIR .                     "./class.db.php" );
 
-    define( "SCRAP_COUNT",                          200 );
-
-    define( "SCRAP_SLEEP",                          50 );
-    define( "CURL_MULTI_COUNT",                     100 );
-    define( "COUNT_PER_PAGE",                       200 );
     define( "ITEM_LIMIT",                           7000 );
 
     define( "SELLER_CHINA_AVAILABLE",               0 );
@@ -64,14 +59,10 @@
     define( "EBAY_APP_NAME_22",                     "Your Ebay APP Name" );
     define( "EBAY_APP_NAME_23",                     "Your Ebay APP Name" );
 
-    define( "EBAY_ITEM_TRANSACTION_ONE_TIME_COUNT", 100 );
-    define( "EBAY_ITEM_INFO_ONE_TIME_COUNT",        100 );
-    define( "EBAY_ITEM_INSERT_ONE_TIME_COUNT",      100 );
-    define( "EBAY_FIND_ITEMS_ONE_TIME_COUNT",       10 );
-    define( "EBAY_SELLER_ITEM_PAGE_ONE_TIME",       20 );
-    define( "EBAY_SELLER_ITEM_ONE_TIME",            2 );
-    define( "EBAY_ITEM_TRAN_CALL_ONE_TIME_COUNT",   100 );
-    define( "EBAY_COPIES_ITEM_ONE_TIME",            100 );
+    define( "EBAY_ITEM_TRANSACTION_ONE_TIME_COUNT", 300 );
+    define( "EBAY_ITEM_INFO_ONE_TIME_COUNT",        300 );
+    define( "EBAY_COPIES_ITEM_ONE_TIME",            300 );
+    define( "EBAY_FIND_ITEMS_ONE_TIME_COUNT",       50 );
     
     define( "EBAY_FIND_URL",                        "http://svcs.ebay.com/services/search/FindingService/v1?operation-name=findItemsAdvanced&global-id=" );
     define( "EBAY_FIND_URL_US",                     "https://www.ebay.com/sch/" );
