@@ -3,7 +3,7 @@ jQuery(document).ready(function() {
     var HOTITEM_PATH = BASE_URL + "scraper/init.php";
     var country = "EBAY-GB";
     var item_count = 0;
-    var item_count_threshold = 600;
+    var item_count_threshold = 100;
     
     parent.hideloader();
     
@@ -101,11 +101,11 @@ jQuery(document).ready(function() {
         {
             if ($("#item_count").val() <= item_count_threshold) {
                 $.getJSON(BASE_URL + 'index.php/api/check_api_available/', function(resp1) {
-                    if (resp1 === 1) {
+                    if (resp1 === -1) {
                         alert("You have already done the limited counts per one day.\nYou can do it after 24 hours.\nIf you want to increase the limited counts, please update your membership level!");
-                    } else if (resp1 === 2) {
+                    } else if (resp1 === -2) {
                         alert("You have already done the limited counts per one day.\nYou can do it after 24 hours.\n");
-                    } else if (resp1 === 0) {
+                    } else if (resp1 >= 0) {
                         parent.showloader();
                         $('#hot_items_body').addClass('hidden');
                         $('#hot_items_body').css('display', 'none');

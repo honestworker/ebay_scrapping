@@ -200,7 +200,7 @@ class Scrapper {
                                     
                                     //$image = $title = $description = $category_name = $location = $currency = $seller_name = $item_country = $listing = $upload_date = $end_date = $condition_name = "";
                                     $image = $title = $category_name = $location = $currency = $seller_name = $item_country = $listing = $upload_date = $end_date = $condition_name = "";
-                                    $category_id = $seller_feddback_score = $is_multi = $quantity = $total_sold = $price = $condition_id = 0;
+                                    $category_id = $seller_feddback_score = $is_multi = $is_subtitle = $quantity = $total_sold = $price = $condition_id = 0;
                                     
                                     if (!$items[$item_id]['completed']) {
                                         $url = (isset($item_info['ViewItemURLForNaturalSearch'])) ? str_replace("\n", "", str_replace("'", "", $item_info['ViewItemURLForNaturalSearch'])) : "";
@@ -294,6 +294,7 @@ class Scrapper {
                                         $listing = (isset($item_info['ListingType'])) ? trim($item_info['ListingType']) : "";
                                         $upload_date = (isset($item_info['StartTime'])) ? date("Y-m-d H:i:s", strtotime($item_info['StartTime']) + (60 * 60)) : "0000-00-00 00:00:00";
                                         $is_multi = (isset($item_info['Variations'])) ? 1 : 0;
+                                        $is_subtitle = (isset($item_info['Subtitle'])) ? 1 : 0;
                                         $item_country = (isset($item_info['Country'])) ? $item_info['Country'] : "";
                                         if ($item_country == "GB") {
                                             $url = str_replace("ebay.com", "ebay.co.uk", $url);
@@ -382,6 +383,7 @@ class Scrapper {
                                                     'upload_date' => $upload_date,
                                                     'end_date' => $end_date,
                                                     'is_multi' => $is_multi,
+                                                    'is_subtitle' => $is_subtitle,
                                                     'info_update' => $now_date,
                                                     'info_completed' => 1,
                                                     'trans_checked' => 1,
@@ -413,6 +415,7 @@ class Scrapper {
                                                     'upload_date' => $upload_date,
                                                     'end_date' => $end_date,
                                                     'is_multi' => $is_multi,
+                                                    'is_subtitle' => $is_subtitle,
                                                     'info_update' => $now_date,
                                                     'info_completed' => 1,
                                                     'trans_checked' => 1,
@@ -1629,10 +1632,10 @@ class Scrapper {
             if ($find_items) {
                 foreach ($find_items as $item_id) {
                     //if ($row = $this->db->get_row("SELECT title, description, is_multi, seller_country, image, url, category_name, price, currency, seller_name, seller_feedback, total_sold, trans_checked, trans_update, trans_completed, seller_id, quantity FROM ds_ebay_items WHERE item_id = '{$item_id}'")) {
-                    if ($row = $this->db->get_row("SELECT title, is_multi, seller_country, image, url, category_name, price, currency, seller_name, seller_feedback, total_sold, trans_checked, trans_update, trans_completed, seller_id, quantity FROM ds_ebay_items WHERE item_id = '{$item_id}'")) {
+                    if ($row = $this->db->get_row("SELECT title, is_multi, seller_country, image, url, category_name, price, currency, seller_name, seller_feedback, total_sold, trans_checked, trans_update, trans_completed, seller_id, quantity, is_subtitle  FROM ds_ebay_items WHERE item_id = '{$item_id}'")) {
                         /*
                             title :                         0
-                            //description :                   1
+                            //description :                 1
                             is_multi :                      1
                             seller_country :                2
                             image :                         3
@@ -1648,10 +1651,16 @@ class Scrapper {
                             trans_completed :               13
                             seller_id :                     14
                             quantity :                      15
+                            is_subtitle :                   16
                         */
                         if ($row[1] == 0) {
                             if ((int)SELLER_CHINA_AVAILABLE == 0) {
                                 if (strtolower($row[2]) == 'china') {
+                                    continue;
+                                }
+                            }
+                            if (ITEM_SUBTITLE_AVAILABLE) {
+                                if ($row[16]) {
                                     continue;
                                 }
                             }
@@ -1926,7 +1935,7 @@ class Scrapper {
                                         
                                         if ($find_items) {
                                             foreach ($find_items as $item_id) {
-                                                if ($row = $this->db->get_row("SELECT title, is_multi, seller_country, image, url, category_name, price, currency, seller_name, seller_feedback, total_sold, trans_checked, trans_update, trans_completed, seller_id, quantity FROM ds_ebay_items WHERE item_id = '{$item_id}'")) {
+                                                if ($row = $this->db->get_row("SELECT title, is_multi, seller_country, image, url, category_name, price, currency, seller_name, seller_feedback, total_sold, trans_checked, trans_update, trans_completed, seller_id, quantity, is_subtitle FROM ds_ebay_items WHERE item_id = '{$item_id}'")) {
                                                 //if ($row = $this->db->get_row("SELECT title, description, is_multi, seller_country, image, url, category_name, price, currency, seller_name, seller_feedback, total_sold, trans_checked, trans_update, trans_completed, seller_id, quantity FROM ds_ebay_items WHERE item_id = '{$item_id}'")) {
                                                     /*
                                                         title :                         0
@@ -1946,10 +1955,16 @@ class Scrapper {
                                                         trans_completed :               13
                                                         seller_id :                     14
                                                         quantity :                      15
+                                                        is_subtitle :                   16
                                                     */
                                                     if ($row[1] == 0) {
                                                         if ((int)SELLER_CHINA_AVAILABLE == 0) {
                                                             if (strtolower($row[2]) == 'china') {
+                                                                continue;
+                                                            }
+                                                        }
+                                                        if (ITEM_SUBTITLE_AVAILABLE) {
+                                                            if ($row[16]) {
                                                                 continue;
                                                             }
                                                         }
@@ -2133,26 +2148,31 @@ class Scrapper {
                             $page_end = ($page_end > $total_pages) ? $total_pages : $page_end;
                             $result_items = $this->find_hot_items_by_pages($find_conditions_array, $page_start, $page_end);
                             if ($result_items) {
-                                foreach ($result_items as $item) {
-                                    $duplicator_flag = 0;
-                                    if ($result) {
-                                        foreach ($result as $result_item) {
-                                            if ($result_item['item_id'] == $item['item_id']) {
-                                                $duplicator_flag = 1;
-                                                break;
+                                if (!isset($result['status'])) {
+                                    foreach ($result_items as $item) {
+                                        $duplicator_flag = 0;
+                                        if ($result) {
+                                            foreach ($result as $result_item) {
+                                                if ($result_item['item_id'] == $item['item_id']) {
+                                                    $duplicator_flag = 1;
+                                                    break;
+                                                }
                                             }
                                         }
-                                    }
-                                    if (!$duplicator_flag) {
-                                        $item_no = $item_no + 1;
-                                        if ($item_no <= $items_count) {
-                                            $result[] = $item;
+                                        if (!$duplicator_flag) {
+                                            $item_no = $item_no + 1;
+                                            if ($item_no <= $items_count) {
+                                                $result[] = $item;
+                                            }
+                                        }
+                                        if ($item_no >= $items_count) {
+                                            break;
                                         }
                                     }
-                                    if ($item_no >= $items_count) {
-                                        break;
-                                    }
-                                }
+                                } else {
+                                    $result = "Scrap Error";
+                                    return $result;
+                                }                                
                             }
                         }
                     } 

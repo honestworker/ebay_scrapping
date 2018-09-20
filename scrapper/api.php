@@ -148,7 +148,7 @@ class Api extends CI_Controller {
     public function check_api_available() {
         $user_info = $this->users->getById($this->userSession->userID);
         
-        $result = -1;
+        $result = -3;
         if ($user_info) {
             $group_id = $user_info->groupId;
             $hot_items_update = $user_info->hot_items_update;
@@ -160,29 +160,24 @@ class Api extends CI_Controller {
                 $now_date = $trans_before = date("Y-m-d H:i:s");
                 $date_before = date("Y-m-d H:i:s", strtotime("$now_date -1 day"));
                 $update_flag = 0;
-                if ($hot_items_count == 0) {
-                    $update_flag = 1;
-                }
-                $hot_items_count = $hot_items_count + 1;
                 if ($group_name === 'premium') {
-                    $limit_count = 4;
+                    $limit_count = 10;
                 } else if ($group_name === 'professional') {
-                    $limit_count = 8;
+                    $limit_count = 20;
                 }
                 if ($hot_items_update < $date_before) {
-                    $hot_items_count = 1;
+                    $hot_items_count = $limit_count;
                     $update_flag = 1;
                 }
-                if ($hot_items_count <= $limit_count) {
-                    $result = 0;
-                } else {
+                $hot_items_count = $hot_items_count - 1;
+                if ($hot_items_count == 0) {
                     if ($group_name === 'premium') {
-                        $result = 1;
+                        $result = -1;
                     } else if ($group_name === 'professional') {
-                        $result = 2;
+                        $result = -2;
                     }
                 }
-                if ($result == 0) {
+                if ($result >= 0) {
                     if ($update_flag == 1) {
                         $this->users->update($this->userSession->userID, array('hot_items_update' => $now_date, 'hot_items_count' => $hot_items_count));
                     } else {

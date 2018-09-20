@@ -16,6 +16,7 @@
 
     define( "SELLER_CHINA_AVAILABLE",               0 );
     define( "DESCRIPTION_CHECK_AVAILABLE",          0 );
+    define( "ITEM_SUBTITLE_AVAILABLE",              1 );
     define( "LIMIT_API_CALL_COUNT",                 5000 );
     define( "API_APP1_COUNT",                       23 );
     define( "API_APP2_COUNT",                       3 );
@@ -96,7 +97,8 @@
     define( "EBAY_SHOP_ITEM_PER_PAGE",              48 );
 
     define( "EBAY_ITEM_URL",                        "http://open.api.ebay.com/shopping?callname=GetSingleItem&responseencoding=JSON&appid=" );
-    define( "EBAY_ITEM_INCLUDE_URL",                "&IncludeSelector=Description,Variations,Details" );
+    //define( "EBAY_ITEM_INCLUDE_URL",                "&IncludeSelector=Description,Variations,Details" );
+    define( "EBAY_ITEM_INCLUDE_URL",                "&IncludeSelector=Subtitle,Variations,Details" );
     
     function get_find_advanced_items_by_seller_url($name, $country, $page_no = 1) {
         /*
