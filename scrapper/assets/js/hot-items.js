@@ -109,6 +109,8 @@ jQuery(document).ready(function() {
                         parent.showloader();
                         $('#hot_items_body').addClass('hidden');
                         $('#hot_items_body').css('display', 'none');
+                        var hot_items_count = $('#hot_items_count').text();
+                        $('#hot_items_count').text(hot_items_count - 1);
                         $.post(HOTITEM_PATH, data, function( resp ) {
                             var json_result = JSON.parse(resp);
                             data_table.rows().remove();

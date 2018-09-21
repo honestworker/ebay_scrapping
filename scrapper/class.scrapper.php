@@ -1997,9 +1997,9 @@ class Scrapper {
                                                         }
                                                         if ($find_conditions_array['sold_period']) {
                                                             $update_flag = 0;
-                                                            if ($row[14]) {
-                                                                if ($row[13] < $date_before) {
-                                                                    if ($row[12] == 1) {
+                                                            if ($row[13]) {
+                                                                if ($row[12] < $date_before) {
+                                                                    if ($row[11] == 1) {
                                                                         $update_trans_items[] = $item_id;
                                                                         $update_flag = 1;
                                                                     }

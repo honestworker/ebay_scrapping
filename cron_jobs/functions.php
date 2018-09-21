@@ -209,14 +209,14 @@
         $encode_title = str_replace('--', '-', $encode_title);
         $encode_title = str_replace('-', '+', $encode_title);
         $return_url = $return_url . $encode_title;
-        //$return_url = $return_url . "&_clu=2&_fcid=";
-        // if ($country == "EBAY-US") {
-        //     $return_url = $return_url . "0";
-        // } else if ($country == "EBAY-GB") {
-        //     $return_url = $return_url . "3";
-        // }
-        //$return_url = $return_url . "&_localstpos&_stpos&gbr=1&LH_BIN=1";
-        //$return_url = $return_url . "&_=" . $item_id;
+        $return_url = $return_url . "&_clu=2&_fcid=";
+        if ($country == "EBAY-US") {
+            $return_url = $return_url . "0";
+        } else if ($country == "EBAY-GB") {
+            $return_url = $return_url . "3";
+        }
+        $return_url = $return_url . "&_localstpos&_stpos&gbr=1&LH_BIN=1";
+        $return_url = $return_url . "&_=" . $item_id;
         
         return $return_url;
     }
