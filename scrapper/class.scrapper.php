@@ -45,7 +45,7 @@ class Scrapper {
                     if ($curl = curl_init()) {
                         curl_setopt($curl, CURLOPT_URL, $item_copies_url);
                         curl_setopt($curl, CURLOPT_HEADER, 0);
-                        curl_setopt($curl, CURLOPT_TIMEOUT, 300);
+                        curl_setopt($curl, CURLOPT_TIMEOUT, 1500);
                         curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
                         
                         curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1);
@@ -1309,6 +1309,7 @@ class Scrapper {
     }
 
     public function get_competition_urls($item_id) {
+        $result = null;
         if ( $row = $this->db->get_row("SELECT copies_url, seller_id FROM ds_ebay_items WHERE item_id = '{$item_id}'") ) {
             if ($row[0]) {
                 $seller_id = $row[1];
@@ -1316,7 +1317,7 @@ class Scrapper {
                 if ($curl = curl_init()) {
                     curl_setopt($curl, CURLOPT_URL, $row[0]);
                     curl_setopt($curl, CURLOPT_HEADER, 0);
-                    curl_setopt($curl, CURLOPT_TIMEOUT, 120);
+                    curl_setopt($curl, CURLOPT_TIMEOUT, 500);
                     curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
                     
                     curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1);
@@ -1330,6 +1331,7 @@ class Scrapper {
                         if (preg_match('#class="rcnt"(.*?)</span>#', $html, $match)) {
                             $copies_count = (int)trim(str_replace([',', '>'], '', $match[1]));
                         }
+                        
                         if ($copies_count) {
                             if ($els = $dom->find('.lvresult')) {
                                 $item_find_count = 0;
@@ -1481,17 +1483,19 @@ class Scrapper {
                             }
                         }
                         
-                        foreach ($items as $item_id) {
-                            if ($row = $this->db->get_row("SELECT image, url, title, total_sold, price, dirty_price, seller_name FROM ds_ebay_items WHERE item_id = '{$item_id}'")) {
-                                $result[] = array(
-                                    'image' => $row[0],
-                                    'url' => $row[1],
-                                    'title' => $row[2],
-                                    'total_sold' => $row[3],
-                                    'price' => $row[4],
-                                    'dirty_price' => $row[5],
-                                    'seller_name' => $row[6]
-                                );
+                        if ($items) {
+                            foreach ($items as $item_id) {
+                                if ($row = $this->db->get_row("SELECT image, url, title, total_sold, price, dirty_price, seller_name FROM ds_ebay_items WHERE item_id = '{$item_id}'")) {
+                                    $result[] = array(
+                                        'image' => $row[0],
+                                        'url' => $row[1],
+                                        'title' => $row[2],
+                                        'total_sold' => $row[3],
+                                        'price' => $row[4],
+                                        'dirty_price' => $row[5],
+                                        'seller_name' => $row[6]
+                                    );
+                                }
                             }
                         }
                     } else {

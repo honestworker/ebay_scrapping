@@ -32,7 +32,9 @@ jQuery(document).ready(function() {
 	if ($('.search-competitor-username').length > 0 && document.location.hash) {
         seller_name = document.location.hash.replace('#', '');
         $('.search-competitor-username').val(seller_name);
-        
+        if (seller_name) {
+            competitor_research();
+        }
 	}
 
     $('.competitor-filter input').change(function() {
@@ -230,8 +232,8 @@ jQuery(document).ready(function() {
 		}, 5000);
     }
     
-	$('.btn-search-competitor').click(function() {
-		$(this).attr('disabled', 'disabled');
+    function competitor_research() {
+		$('.btn-search-competitor').attr('disabled', 'disabled');
 		$('.results').hide();  // datatable
 		$('.alerts .callout').remove();
 		$('.alert-watchlist-added').hide();  // view watchlist button
@@ -266,5 +268,10 @@ jQuery(document).ready(function() {
                 get_seller_info(seller_name, range);
             }
         })
+        
+    }
+    
+	$('.btn-search-competitor').click(function() {
+	    competitor_research();
     });
 });

@@ -148,14 +148,14 @@ class Api extends CI_Controller {
     public function check_api_available() {
         $user_info = $this->users->getById($this->userSession->userID);
         
-        $result = -3;
+        $hot_items_count = -3;
         if ($user_info) {
             $group_id = $user_info->groupId;
             $hot_items_update = $user_info->hot_items_update;
             $hot_items_count = $user_info->hot_items_count;
             $group_name = $this->usergroups->getNameById($group_id);
             if ($group_name === 'admin') {
-                $result = 0;
+                $hot_items_count = 0;
             } else if ($group_name === 'premium' || $group_name === 'professional') {
                 $now_date = $trans_before = date("Y-m-d H:i:s");
                 $date_before = date("Y-m-d H:i:s", strtotime("$now_date -1 day"));
@@ -170,14 +170,13 @@ class Api extends CI_Controller {
                     $update_flag = 1;
                 }
                 $hot_items_count = $hot_items_count - 1;
-                if ($hot_items_count == 0) {
+                if ($hot_items_count < 0) {
                     if ($group_name === 'premium') {
-                        $result = -1;
+                        $hot_items_count = -1;
                     } else if ($group_name === 'professional') {
-                        $result = -2;
+                        $hot_items_count = -2;
                     }
-                }
-                if ($result >= 0) {
+                } else {
                     if ($update_flag == 1) {
                         $this->users->update($this->userSession->userID, array('hot_items_update' => $now_date, 'hot_items_count' => $hot_items_count));
                     } else {
@@ -189,6 +188,6 @@ class Api extends CI_Controller {
         
         return $this->output
             ->set_content_type('application/json')
-            ->set_output(json_encode($result));
+            ->set_output(json_encode($hot_items_count));
     }
 }

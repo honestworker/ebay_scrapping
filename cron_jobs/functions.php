@@ -62,7 +62,7 @@
 
     define( "EBAY_ITEM_TRANSACTION_ONE_TIME_COUNT", 300 );
     define( "EBAY_ITEM_INFO_ONE_TIME_COUNT",        300 );
-    define( "EBAY_COPIES_ITEM_ONE_TIME",            300 );
+    define( "EBAY_COPIES_ITEM_ONE_TIME",            100 );
     define( "EBAY_FIND_ITEMS_ONE_TIME_COUNT",       50 );
     
     define( "EBAY_FIND_URL",                        "http://svcs.ebay.com/services/search/FindingService/v1?operation-name=findItemsAdvanced&global-id=" );
@@ -205,15 +205,18 @@
             $return_url = EBAY_UK_URL;
         }
         $return_url = $return_url . "/sch/i.html?_nkw=";
-        $return_url = $return_url . urlencode($title);
-        $return_url = $return_url . "&_clu=2&_fcid=";
-        if ($country == "EBAY-US") {
-            $return_url = $return_url . "0";
-        } else if ($country == "EBAY-GB") {
-            $return_url = $return_url . "3";
-        }
-        $return_url = $return_url . "&_localstpos&_stpos&gbr=1&LH_BIN=1";
-        $return_url = $return_url . "&_=" . $item_id;
+        $encode_title = urlencode($title);
+        $encode_title = str_replace('--', '-', $encode_title);
+        $encode_title = str_replace('-', '+', $encode_title);
+        $return_url = $return_url . $encode_title;
+        //$return_url = $return_url . "&_clu=2&_fcid=";
+        // if ($country == "EBAY-US") {
+        //     $return_url = $return_url . "0";
+        // } else if ($country == "EBAY-GB") {
+        //     $return_url = $return_url . "3";
+        // }
+        //$return_url = $return_url . "&_localstpos&_stpos&gbr=1&LH_BIN=1";
+        //$return_url = $return_url . "&_=" . $item_id;
         
         return $return_url;
     }
