@@ -45,7 +45,7 @@ class Scrapper {
                     if ($curl = curl_init()) {
                         curl_setopt($curl, CURLOPT_URL, $item_copies_url);
                         curl_setopt($curl, CURLOPT_HEADER, 0);
-                        curl_setopt($curl, CURLOPT_TIMEOUT, 1500);
+                        curl_setopt($curl, CURLOPT_TIMEOUT, 3000);
                         curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
                         
                         curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1);
@@ -1540,7 +1540,7 @@ class Scrapper {
                 if ($curl[$page_no] = curl_init()) {
                     curl_setopt($curl[$page_no], CURLOPT_URL, $find_url);
                     curl_setopt($curl[$page_no], CURLOPT_HEADER, 0);
-                    curl_setopt($curl[$page_no], CURLOPT_TIMEOUT, 60);
+                    curl_setopt($curl[$page_no], CURLOPT_TIMEOUT, 1500);
                     curl_setopt($curl[$page_no], CURLOPT_RETURNTRANSFER, 1);
                     
                     curl_setopt($curl[$page_no], CURLOPT_FOLLOWLOCATION, 1);
@@ -1857,7 +1857,7 @@ class Scrapper {
                     if ($find_curl = curl_init()) {
                         curl_setopt($find_curl, CURLOPT_URL, $find_url);
                         curl_setopt($find_curl, CURLOPT_HEADER, 0);
-                        curl_setopt($find_curl, CURLOPT_TIMEOUT, 60);
+                        curl_setopt($find_curl, CURLOPT_TIMEOUT, 1500);
                         curl_setopt($find_curl, CURLOPT_RETURNTRANSFER, 1);
                         
                         curl_setopt($find_curl, CURLOPT_FOLLOWLOCATION, 1);
