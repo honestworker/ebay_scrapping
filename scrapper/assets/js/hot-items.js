@@ -77,8 +77,9 @@ jQuery(document).ready(function() {
         }
     })
     
-    $('#find_items').click(function() {        
+    $('#find_items').click(function() {
         var keyword = $("#keyword").val();
+        keyword = keyword.trim();
         var category = $("#category").val();
         var fb_min = $( "#fb_min" ).val();
         var fb_max = $( "#fb_max" ).val();
