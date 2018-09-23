@@ -199,7 +199,7 @@ class Scrapper {
                                     $item_id = $item_info['ItemID'];
                                     
                                     //$image = $title = $description = $category_name = $location = $currency = $seller_name = $item_country = $listing = $upload_date = $end_date = $condition_name = "";
-                                    $image = $title = $category_name = $location = $currency = $seller_name = $item_country = $listing = $upload_date = $end_date = $condition_name = "";
+                                    $image = $title = $category_name = $location = $currency = $seller_name = $item_country = $listing = $upload_date = $end_date = $condition_name = $copies_url = "";
                                     $category_id = $seller_feddback_score = $is_multi = $is_subtitle = $quantity = $total_sold = $price = $condition_id = 0;
                                     
                                     if (!$items[$item_id]['completed']) {
@@ -299,6 +299,7 @@ class Scrapper {
                                         if ($item_country == "GB") {
                                             $url = str_replace("ebay.com", "ebay.co.uk", $url);
                                         }
+                                        $copies_url = get_item_copies_url("EBAY-" . $item_country, $item_id, $title);
                                     }
                                     $quantity = (isset($item_info['Quantity'])) ? str_replace("'", "", trim($item_info['Quantity'])) : 0;
                                     $total_sold = (isset($item_info['QuantitySold'])) ? trim($item_info['QuantitySold']) : 0;
@@ -380,6 +381,7 @@ class Scrapper {
                                                     'listing' => $listing,
                                                     'condition_id' => $condition_id,
                                                     'condition_name' => $condition_name,
+                                                    'copies_url' => $copies_url,
                                                     'upload_date' => $upload_date,
                                                     'end_date' => $end_date,
                                                     'is_multi' => $is_multi,
@@ -412,6 +414,7 @@ class Scrapper {
                                                     'listing' => $listing,
                                                     'condition_id' => $condition_id,
                                                     'condition_name' => $condition_name,
+                                                    'copies_url' => $copies_url,
                                                     'upload_date' => $upload_date,
                                                     'end_date' => $end_date,
                                                     'is_multi' => $is_multi,
@@ -607,7 +610,7 @@ class Scrapper {
                                         //$shipping_country = $trans[0]->Buyer[0]->BuyerInfo[0]->ShippingAddress[0]->Country;
                                         //$shipping_postal = $trans[0]->Buyer[0]->BuyerInfo[0]->ShippingAddress[0]->PostalCode;
                                         $item_trans_extra_info[$item_id]['dirty_price'] = $trans_price;
-                                        if ($row = $this->db->get_row("SELECT ID FROM ds_ebay_item_trans WHERE item_id = '{$item_id}' AND trans_date = '{$trans_date}' AND quantity = '{$quantity}' AND converted_price = '{$converted_price}'")) {
+                                        if ($row = $this->db->get_row("SELECT ID FROM ds_ebay_item_trans WHERE item_id = '{$item_id}' AND trans_date = '{$trans_date}' AND quantity = '{$quantity}'")) {
                                         } else {
                                             $this->db->insert('ds_ebay_item_trans',
                                                 array(
@@ -831,7 +834,7 @@ class Scrapper {
                     if ($item_els = $dom->find('li.sresult')) {
                         foreach ($item_els as $item_el) {
                             $item_id = 0;
-                            $item_url = $item_title = $item_copies_url = $title_url = "";
+                            $item_url = $item_title = $title_url = "";
                             if ($item_url_el = $item_el->find('h3.lvtitle a', 0)) {
                                 $item_url = $item_url_el->href;                                
                                 $item_title = str_replace("'", "", $item_url_el->plaintext);
@@ -847,7 +850,6 @@ class Scrapper {
                                     $item_id = $match[1];
                                 }
                             }
-                            $item_copies_url = get_item_copies_url($country, $item_id, $title_url);
                             $result['count'] = $result['count'] + 1;
                             if ($item_id && $item_id > 1000) {
                                 if ($row = $this->db->get_row("SELECT seller_id, info_checked, info_update, info_completed, copies_checked, copies_update, copies_completed, trans_checked, trans_update, trans_completed, total_sold FROM ds_ebay_items WHERE item_id = '{$item_id}'")) {
@@ -929,7 +931,6 @@ class Scrapper {
                                                 'seller_id' => $seller_id,
                                                 'title' => $item_title,
                                                 'url' => $item_url,
-                                                'copies_url' => $item_copies_url,
                                                 'info_checked' => 0,
                                                 'copies_checked' => 0,
                                                 'trans_checked' => 1,
@@ -1540,7 +1541,7 @@ class Scrapper {
                 if ($curl[$page_no] = curl_init()) {
                     curl_setopt($curl[$page_no], CURLOPT_URL, $find_url);
                     curl_setopt($curl[$page_no], CURLOPT_HEADER, 0);
-                    curl_setopt($curl[$page_no], CURLOPT_TIMEOUT, 1500);
+                    curl_setopt($curl[$page_no], CURLOPT_TIMEOUT, 6000);
                     curl_setopt($curl[$page_no], CURLOPT_RETURNTRANSFER, 1);
                     
                     curl_setopt($curl[$page_no], CURLOPT_FOLLOWLOCATION, 1);
@@ -1658,8 +1659,8 @@ class Scrapper {
                             is_subtitle :                   16
                         */
                         if ($row[1] == 0) {
-                            if ((int)SELLER_CHINA_AVAILABLE == 0) {
-                                if (strtolower($row[2]) == 'china') {
+                            if (SELLER_ALL_COUNTRY_AVAILABLE == 0) {
+                                if (strtolower($row[2]) == 'china' || strtolower($row[2]) == 'hong kong' ||  strtolower($row[2]) == 'singapore') {
                                     continue;
                                 }
                             }
@@ -1962,8 +1963,8 @@ class Scrapper {
                                                         is_subtitle :                   16
                                                     */
                                                     if ($row[1] == 0) {
-                                                        if ((int)SELLER_CHINA_AVAILABLE == 0) {
-                                                            if (strtolower($row[2]) == 'china') {
+                                                        if (SELLER_ALL_COUNTRY_AVAILABLE == 0) {
+                                                            if (strtolower($row[2]) == 'china' || strtolower($row[2]) == 'hong kong' ||  strtolower($row[2]) == 'singapore') {
                                                                 continue;
                                                             }
                                                         }
@@ -2187,6 +2188,6 @@ class Scrapper {
         return $result;
     }
     
-    public function test_func() {
+    public function test_func($item_id) {
     }
 }

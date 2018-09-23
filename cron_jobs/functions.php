@@ -14,52 +14,16 @@
 
     define( "ITEM_LIMIT",                           7000 );
 
-    define( "SELLER_CHINA_AVAILABLE",               0 );
+    define( "SELLER_ALL_COUNTRY_AVAILABLE",         0 );
     define( "DESCRIPTION_CHECK_AVAILABLE",          0 );
     define( "ITEM_SUBTITLE_AVAILABLE",              1 );
     define( "LIMIT_API_CALL_COUNT",                 5000 );
-    define( "API_APP1_COUNT",                       23 );
+    define( "API_APP1_COUNT",                       138 );
     define( "API_APP2_COUNT",                       3 );
 
     define( "EBAY_API_VERSION",                     1029 );
     define( "EBAY_API_END_POINT",                   "https://api.ebay.com/ws/api.dll" );
     
-    define( "EBAY_APP_NAME_01",                     "Your Ebay APP Name" );
-    define( "EBAY_DEV_NAME_01",                     "Your Ebay DEV Name" );
-    define( "EBAY_CERT_NAME_01",                    "Your Ebay CERT Name" );
-    define( "EBAY_TOKEN_01",                        "Your Ebay TOKEN Name" );
-
-    define( "EBAY_APP_NAME_02",                     "Your Ebay APP Name" );
-    define( "EBAY_DEV_NAME_02",                     "Your Ebay DEV Name" );
-    define( "EBAY_CERT_NAME_02",                    "Your Ebay CERT Name" );
-    define( "EBAY_TOKEN_02",                        "Your Ebay TOKEN Name" );
-
-    define( "EBAY_APP_NAME_03",                     "Your Ebay APP Name" );
-    define( "EBAY_DEV_NAME_03",                     "Your Ebay DEV Name" );
-    define( "EBAY_CERT_NAME_03",                    "Your Ebay CERT Name" );
-    define( "EBAY_TOKEN_03",                        "Your Ebay TOKEN Name" );
-
-    define( "EBAY_APP_NAME_04",                     "Your Ebay APP Name" );
-    define( "EBAY_APP_NAME_05",                     "Your Ebay APP Name" );
-    define( "EBAY_APP_NAME_06",                     "Your Ebay APP Name" );
-    define( "EBAY_APP_NAME_07",                     "Your Ebay APP Name" );
-    define( "EBAY_APP_NAME_08",                     "Your Ebay APP Name" );
-    define( "EBAY_APP_NAME_09",                     "Your Ebay APP Name" );
-    define( "EBAY_APP_NAME_10",                     "Your Ebay APP Name" );
-    define( "EBAY_APP_NAME_11",                     "Your Ebay APP Name" );
-    define( "EBAY_APP_NAME_12",                     "Your Ebay APP Name" );
-    define( "EBAY_APP_NAME_13",                     "Your Ebay APP Name" );
-    define( "EBAY_APP_NAME_14",                     "Your Ebay APP Name" );
-    define( "EBAY_APP_NAME_15",                     "Your Ebay APP Name" );
-    define( "EBAY_APP_NAME_16",                     "Your Ebay APP Name" );
-    define( "EBAY_APP_NAME_17",                     "Your Ebay APP Name" );
-    define( "EBAY_APP_NAME_18",                     "Your Ebay APP Name" );
-    define( "EBAY_APP_NAME_19",                     "Your Ebay APP Name" );
-    define( "EBAY_APP_NAME_20",                     "Your Ebay APP Name" );
-    define( "EBAY_APP_NAME_21",                     "Your Ebay APP Name" );
-    define( "EBAY_APP_NAME_22",                     "Your Ebay APP Name" );
-    define( "EBAY_APP_NAME_23",                     "Your Ebay APP Name" );
-
     define( "EBAY_ITEM_TRANSACTION_ONE_TIME_COUNT", 300 );
     define( "EBAY_ITEM_INFO_ONE_TIME_COUNT",        300 );
     define( "EBAY_COPIES_ITEM_ONE_TIME",            100 );
@@ -148,7 +112,51 @@
         }
         return $return_country;
     }
+
+    function get_ebay_api_app_name($app_no) {
+        $EBAY_APP_NAME = array(
+        );
+
+        $result_ebay_app_name = $EBAY_APP_NAME[0];
+        if (isset($EBAY_APP_NAME[$app_no])) {
+            $result_ebay_app_name = $EBAY_APP_NAME[$app_no];
+        }
+        return $result_ebay_app_name;
+    }
     
+    function get_ebay_api_dev_name($app_no) {
+        $EBAY_DEV_NAME = array(
+        );
+
+        $result_ebay_dev_name = $EBAY_DEV_NAME[0];
+        if (isset($EBAY_DEV_NAME[$app_no])) {
+            $result_ebay_dev_name = $EBAY_DEV_NAME[$app_no];
+        }
+        return $result_ebay_dev_name;
+    }
+    
+    function get_ebay_api_cert_name($app_no) {
+        $EBAY_CERT_NAME = array(
+        );
+
+        $result_ebay_cert_name = $EBAY_CERT_NAME[0];
+        if (isset($EBAY_CERT_NAME[$app_no])) {
+            $result_ebay_cert_name = $EBAY_CERT_NAME[$app_no];
+        }
+        return $result_ebay_cert_name;
+    }
+
+    function get_ebay_api_token_name($app_no) {
+        $EBAY_TOKEN_NAME = array(
+        );
+
+        $result_ebay_token_name = $EBAY_TOKEN_NAME[0];
+        if (isset($EBAY_TOKEN_NAME[$app_no])) {
+            $result_ebay_token_name = $EBAY_TOKEN_NAME[$app_no];
+        }
+        return $result_ebay_token_name;
+    }
+
     function get_currency_string($currency) {
         $EBAY_CURRENCY_LIST = array(
             "USD" => "$",
@@ -194,30 +202,75 @@
         return $return_url;
     }
 
+    function get_item_copies_word($title) {
+        $result_word = $word = "";
+        $word_status = 1;
+        for ($str_no = 0, $str_len = strlen($title); $str_no < $str_len; $str_no++) {
+            if ($title[$str_no] == ' ') {
+                if ($word != "") {
+                    if ($word_status) {
+                        if ($result_word) {
+                            $result_word = $result_word . '+';
+                        }
+                        $result_word = $result_word . $word;
+                    }
+                }
+                $word = "";
+                $word_status = 1;
+            } else if ($title[$str_no] == '(' || $title[$str_no] == ')' || $title[$str_no] == '\n' || $title[$str_no] == '\t' || $title[$str_no] == '\r') {
+                $word_status = 2;
+            } else if ($title[$str_no] == '%' || $title[$str_no] == '&') {
+            } else {
+                if ($title[$str_no] == '-') {
+                    if ($word != "") {
+                        $word = $word . $title[$str_no];
+                    }
+                } else {
+                    if ($word_status == 2) {
+                        if ($word != "") {
+                            $word = $word . '+';
+                        }
+                        $word_status = 1;
+                    }
+                    $word = $word . $title[$str_no];
+                }
+            }
+        }
+        if ($word != "") {
+            if ($word_status) {
+                if ($result_word) {
+                    $result_word = $result_word . '+';
+                }
+                $result_word = $result_word . $word;
+            }
+        }
+        return $result_word;
+    }
+    
     function get_item_copies_url($country, $item_id, $title) {
         /*
             "https://{{host}}/sch/i.html?_nkw={{name}}&_clu=2&_fcid={{countryId}}&_localstpos&_stpos&gbr=1&LH_BIN=1"
         */
-        $return_url = '';
-        if ($country == "EBAY-US") {
-            $return_url = EBAY_US_URL;
-        } else if ($country == "EBAY-GB") {
-            $return_url = EBAY_UK_URL;
-        }
+        // $return_url = EBAY_US_URL;
+        // if ($country == "EBAY-US") {
+        //     $return_url = EBAY_US_URL;
+        // } else if ($country == "EBAY-GB") {
+        //     $return_url = EBAY_UK_URL;
+        // }
+        $return_url = EBAY_UK_URL;
         $return_url = $return_url . "/sch/i.html?_nkw=";
-        $encode_title = urlencode($title);
-        $encode_title = str_replace('--', '-', $encode_title);
-        $encode_title = str_replace('-', '+', $encode_title);
-        $return_url = $return_url . $encode_title;
+        $return_url = $return_url . get_item_copies_word(trim($title));
         $return_url = $return_url . "&_clu=2&_fcid=";
-        if ($country == "EBAY-US") {
-            $return_url = $return_url . "0";
-        } else if ($country == "EBAY-GB") {
+        // if ($country == "EBAY-US") {
+        //     $return_url = $return_url . "0";
+        // } else if ($country == "EBAY-GB") {
+        //     $return_url = $return_url . "3";
+        // }
+        if ($country == "EBAY-GB") {
             $return_url = $return_url . "3";
         }
         $return_url = $return_url . "&_localstpos&_stpos&gbr=1&LH_BIN=1";
         $return_url = $return_url . "&_=" . $item_id;
-        
         return $return_url;
     }
 
@@ -233,59 +286,9 @@
             http://open.api.ebay.com/shopping?callname=GetSingleItem&responseencoding=JSON&appid=YourAPPNAME&siteid=0
             &version=967&ItemID=382160977388&IncludeSelector=TextDescription,Details
         */
-        
-        if ($app_no == 1) {
-            $ebay_app_name = EBAY_APP_NAME_01;
-        } else if ($app_no == 2) {
-            $ebay_app_name = EBAY_APP_NAME_02;
-        } else if ($app_no == 3) {
-            $ebay_app_name = EBAY_APP_NAME_03;
-        } else if ($app_no == 4) {
-            $ebay_app_name = EBAY_APP_NAME_04;
-        } else if ($app_no == 5) {
-            $ebay_app_name = EBAY_APP_NAME_05;
-        } else if ($app_no == 6) {
-            $ebay_app_name = EBAY_APP_NAME_06;
-        } else if ($app_no == 7) {
-            $ebay_app_name = EBAY_APP_NAME_07;
-        } else if ($app_no == 8) {
-            $ebay_app_name = EBAY_APP_NAME_08;
-        } else if ($app_no == 9) {
-            $ebay_app_name = EBAY_APP_NAME_09;
-        } else if ($app_no == 10) {
-            $ebay_app_name = EBAY_APP_NAME_10;
-        } else if ($app_no == 11) {
-            $ebay_app_name = EBAY_APP_NAME_11;
-        } else if ($app_no == 12) {
-            $ebay_app_name = EBAY_APP_NAME_12;
-        } else if ($app_no == 13) {
-            $ebay_app_name = EBAY_APP_NAME_13;
-        } else if ($app_no == 14) {
-            $ebay_app_name = EBAY_APP_NAME_14;
-        } else if ($app_no == 15) {
-            $ebay_app_name = EBAY_APP_NAME_15;
-        } else if ($app_no == 16) {
-            $ebay_app_name = EBAY_APP_NAME_16;
-        } else if ($app_no == 17) {
-            $ebay_app_name = EBAY_APP_NAME_17;
-        } else if ($app_no == 18) {
-            $ebay_app_name = EBAY_APP_NAME_18;
-        } else if ($app_no == 19) {
-            $ebay_app_name = EBAY_APP_NAME_19;
-        } else if ($app_no == 20) {
-            $ebay_app_name = EBAY_APP_NAME_20;
-        } else if ($app_no == 21) {
-            $ebay_app_name = EBAY_APP_NAME_21;
-        } else if ($app_no == 22) {
-            $ebay_app_name = EBAY_APP_NAME_22;
-        } else if ($app_no == 23) {
-            $ebay_app_name = EBAY_APP_NAME_23;
-        } else {
-            $ebay_app_name = EBAY_APP_NAME_01;
-        }
-        
+                
         $return_url = EBAY_ITEM_URL;
-        $return_url = $return_url . $ebay_app_name;
+        $return_url = $return_url . get_ebay_api_app_name($app_no);
         $return_url = $return_url . "&siteid=0&version=1073&ItemID=";
         $return_url = $return_url . $item_id;
         $return_url = $return_url . EBAY_ITEM_INCLUDE_URL;
@@ -310,39 +313,21 @@
             X-EBAY-API-DEV-NAMEE:YOUR DEV NAME
             X-EBAY-API-CERT-NAME:YOUR CERT NAME
         */
-        
-        if ($app_no == 1) {
-            $ebay_app_name = EBAY_APP_NAME_01;
-            $ebay_dev_name = EBAY_DEV_NAME_01;
-            $ebay_cert_name = EBAY_CERT_NAME_01;
-        } else if ($app_no == 2) {
-            $ebay_app_name = EBAY_APP_NAME_02;
-            $ebay_dev_name = EBAY_DEV_NAME_02;
-            $ebay_cert_name = EBAY_CERT_NAME_02;
-        } else if ($app_no == 3) {
-            $ebay_app_name = EBAY_APP_NAME_03;
-            $ebay_dev_name = EBAY_DEV_NAME_03;
-            $ebay_cert_name = EBAY_CERT_NAME_03;
-        } else {            
-            $ebay_app_name = EBAY_APP_NAME_01;
-            $ebay_dev_name = EBAY_DEV_NAME_01;
-            $ebay_cert_name = EBAY_CERT_NAME_01;
-        }
-        
+                
         if ($country == "EBAY-GB") {
             $html_request_head = array("X-EBAY-API-SITEID:3",
                     "X-EBAY-API-COMPATIBILITY-LEVEL:" . EBAY_API_VERSION,
                     "X-EBAY-API-CALL-NAME:" . "GetItemTransactions",
-                    "X-EBAY-API-APP-NAME:" . $ebay_app_name,
-                    "X-EBAY-API-DEV-NAME:" . $ebay_dev_name,
-                    "X-EBAY-API-CERT-NAME:". $ebay_cert_name);
+                    "X-EBAY-API-APP-NAME:" . get_ebay_api_app_name($app_no),
+                    "X-EBAY-API-DEV-NAME:" . get_ebay_api_dev_name($app_no),
+                    "X-EBAY-API-CERT-NAME:". get_ebay_api_cert_name($app_no));
         } else if ($country == "EBAY-US") {
             $html_request_head = array("X-EBAY-API-SITEID:0",
                     "X-EBAY-API-COMPATIBILITY-LEVEL:" . EBAY_API_VERSION,
                     "X-EBAY-API-CALL-NAME:" . "GetItemTransactions",
-                    "X-EBAY-API-APP-NAME:" . $ebay_app_name,
-                    "X-EBAY-API-DEV-NAME:" . $ebay_dev_name,
-                    "X-EBAY-API-CERT-NAME:". $ebay_cert_name);
+                    "X-EBAY-API-APP-NAME:" . get_ebay_api_app_name($app_no),
+                    "X-EBAY-API-DEV-NAME:" . get_ebay_api_dev_name($app_no),
+                    "X-EBAY-API-CERT-NAME:". get_ebay_api_cert_name($app_no));
         }
         
         return $html_request_head;
@@ -370,19 +355,11 @@
                 <OutputSelector>PaginationResult</OutputSelector>
             </GetItemTransactionsRequest>
         */
-        
-        if ($app_no == 1) {
-            $ebay_token = EBAY_TOKEN_01;
-        } else if ($app_no == 2) {
-            $ebay_token = EBAY_TOKEN_02;
-        } else if ($app_no == 3) {
-            $ebay_token = EBAY_TOKEN_03;
-        }
-        
+                
         $html_request_body = '<?xml version="1.0" encoding="utf-8"?>
             <GetItemTransactionsRequest xmlns="urn:ebay:apis:eBLBaseComponents">
                 <RequesterCredentials>
-                    <eBayAuthToken>' . $ebay_token . '</eBayAuthToken>
+                    <eBayAuthToken>' . get_ebay_api_token_name($app_no) . '</eBayAuthToken>
                 </RequesterCredentials>
                 <ErrorLanguage>en_US</ErrorLanguage>
                 <WarningLevel>High</WarningLevel>
@@ -472,56 +449,7 @@
                 $url .= '&paginationInput.pageNumber=1';
             }
             $url .= '&descriptionSearch=true';
-            
-            if ($app_no == 1) {
-                $url .= '&security-appname='. EBAY_APP_NAME_01;
-            } else if ($app_no == 2) {
-                $url .= '&security-appname='. EBAY_APP_NAME_02;
-            } else if ($app_no == 3) {
-                $url .= '&security-appname='. EBAY_APP_NAME_03;
-            } else if ($app_no == 4) {
-                $url .= '&security-appname='. EBAY_APP_NAME_04;
-            } else if ($app_no == 5) {
-                $url .= '&security-appname='. EBAY_APP_NAME_05;
-            } else if ($app_no == 6) {
-                $url .= '&security-appname='. EBAY_APP_NAME_06;
-            } else if ($app_no == 7) {
-                $url .= '&security-appname='. EBAY_APP_NAME_07;
-            } else if ($app_no == 8) {
-                $url .= '&security-appname='. EBAY_APP_NAME_08;
-            } else if ($app_no == 9) {
-                $url .= '&security-appname='. EBAY_APP_NAME_09;
-            } else if ($app_no == 10) {
-                $url .= '&security-appname='. EBAY_APP_NAME_10;
-            } else if ($app_no == 11) {
-                $url .= '&security-appname='. EBAY_APP_NAME_11;
-            } else if ($app_no == 12) {
-                $url .= '&security-appname='. EBAY_APP_NAME_12;
-            } else if ($app_no == 13) {
-                $url .= '&security-appname='. EBAY_APP_NAME_13;
-            } else if ($app_no == 14) {
-                $url .= '&security-appname='. EBAY_APP_NAME_14;
-            } else if ($app_no == 15) {
-                $url .= '&security-appname='. EBAY_APP_NAME_15;
-            } else if ($app_no == 16) {
-                $url .= '&security-appname='. EBAY_APP_NAME_16;
-            } else if ($app_no == 17) {
-                $url .= '&security-appname='. EBAY_APP_NAME_17;
-            } else if ($app_no == 18) {
-                $url .= '&security-appname='. EBAY_APP_NAME_18;
-            } else if ($app_no == 19) {
-                $url .= '&security-appname='. EBAY_APP_NAME_19;
-            } else if ($app_no == 20) {
-                $url .= '&security-appname='. EBAY_APP_NAME_20;
-            } else if ($app_no == 21) {
-                $url .= '&security-appname='. EBAY_APP_NAME_21;
-            } else if ($app_no == 22) {
-                $url .= '&security-appname='. EBAY_APP_NAME_22;
-            } else if ($app_no == 23) {
-                $url .= '&security-appname='. EBAY_APP_NAME_23;
-            } else {
-                $url .= '&security-appname='. EBAY_APP_NAME_23;
-            }
+            $url .= '&security-appname='. get_ebay_api_app_name($app_no);
             
             if (isset($conditions['format']))
             {

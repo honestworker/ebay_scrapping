@@ -67,20 +67,23 @@ jQuery(document).ready(function() {
     			.on('draw', function(e) {
     				var comp_items = $('.items-competition-table tr'), item_index = 0;
         		    for (item_index = 0; item_index < comp_items.length; item_index++) {
-        		        if (comp_items[item_index].childNodes[5].innerHTML == seller_name) {
-        		            comp_items[item_index].setAttribute('class', comp_items[item_index].className + ' selected');
-        		        }
+                        if (comp_items[item_index].childNodes[5]) {
+                            if (comp_items[item_index].childNodes[5].innerHTML == seller_name) {
+                                comp_items[item_index].setAttribute('class', comp_items[item_index].className + ' selected');
+                            }
+                        }
         		    }
                 });
             }
 			
 			var t = [];
-			
-			for( var i = 0; i < resp['data'].length; i++ ) {
-				var item = resp['data'][i];
-                t.push(['<img src="' + item['image'] +'">', '<a href="'+ item['url'] + '" target="_blank">' + item['title'] + '</a>', item['total_sold'], item['price'], item['dirty_price'], item['seller_name']])
-			}
-			
+            
+            if (resp['data']) {
+                for( var i = 0; i < resp['data'].length; i++ ) {
+                    var item = resp['data'][i];
+                    t.push(['<img src="' + item['image'] +'">', '<a href="'+ item['url'] + '" target="_blank">' + item['title'] + '</a>', item['total_sold'], item['price'], item['dirty_price'], item['seller_name']])
+                }
+            }
 			table.rows.add(t).draw();
 			$('.competition-spinner').hide();
 			$('.competition-table').show();
@@ -246,7 +249,8 @@ jQuery(document).ready(function() {
 			$('.items-table tr').remove();
 		}
 		
-		seller_name = $('.search-competitor-username').val();
+        seller_name = $('.search-competitor-username').val();
+        seller_name = seller_name.trim();
 		var range = $('.range').val();
 		
 		STATE.days = range;
