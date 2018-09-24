@@ -880,7 +880,7 @@ class Scrapper {
                                         }
                                     } else {
                                         if ($row[4] == 1) {
-                                            $this->db->update('ds_ebay_items', array('copies_checked' => 0, 'copies_url' => $item_copies_url), array('item_id' => $item_id));
+                                            $this->db->update('ds_ebay_items', array('copies_checked' => 0), array('item_id' => $item_id));
                                             $result['data']['update']['copies'][] = $item_id;
                                         } else {
                                             $result['data']['pending']['copies'][] = $item_id;
