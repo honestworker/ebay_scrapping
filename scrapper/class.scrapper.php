@@ -470,9 +470,9 @@ class Scrapper {
     private function getSellerCountry($sellers) {
         if ($sellers) {
             foreach ($sellers as $seller) {
-                $this->check_seller_exist($seller);
+                $this->check_update_seller_info($seller);
             }
-        }                
+        }
     }
 
     private function getItemSellerCountry($items) {
@@ -953,6 +953,7 @@ class Scrapper {
     }
 
     public function track_seller_info($name) {
+        $this->check_update_seller_info($name);
         if ($row = $this->db->get_row("SELECT ID, completed, checked, update_date FROM ds_ebay_sellers WHERE name = '{$name}'")) {
             if (!$row[1]) {
                 $seller_id = $row[0];
@@ -1157,7 +1158,7 @@ class Scrapper {
         }
     }
 
-    private function check_seller_exist($name) {
+    private function check_update_seller_info($name) {
         $result = false;
         $url = EBAY_SELLER_URL . $name;
         if ($curl = curl_init()) {
@@ -1190,6 +1191,7 @@ class Scrapper {
                         $seller_shop = basename($el->href);
                     }
                     if ($row = $this->db->get_row("SELECT ID FROM ds_ebay_sellers WHERE name = '{$name}'")) {
+                        $this->db->update('ds_ebay_sellers', array('feedback_ratio' => $feedback_ratio, 'feedback_score' => $feedback_score, 'country' => $country, 'shop' => $seller_shop), array('name' => $name));
                     } else {
                         $this->db->insert('ds_ebay_sellers', array('feedback_ratio' => $feedback_ratio, 'feedback_score' => $feedback_score, 'country' => $country, 'shop' => $seller_shop, 'name' => $name));
                     }
@@ -1222,7 +1224,7 @@ class Scrapper {
                 }
             }
         } else {
-            if ($this->check_seller_exist($name)) {
+            if ($this->check_update_seller_info($name)) {
                 $result = 'pending_init';
             } else {
                 $result = 'failure';
@@ -1488,6 +1490,7 @@ class Scrapper {
                             foreach ($items as $item_id) {
                                 if ($row = $this->db->get_row("SELECT image, url, title, total_sold, price, dirty_price, seller_name FROM ds_ebay_items WHERE item_id = '{$item_id}'")) {
                                     $result[] = array(
+                                        'item_id' => $item_id,
                                         'image' => $row[0],
                                         'url' => $row[1],
                                         'title' => $row[2],

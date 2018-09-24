@@ -28,6 +28,7 @@ jQuery(document).ready(function() {
     }
 
     var seller_name = '';
+    var competitor_item_id = 0;
 
 	if ($('.search-competitor-username').length > 0 && document.location.hash) {
         seller_name = document.location.hash.replace('#', '');
@@ -47,7 +48,8 @@ jQuery(document).ready(function() {
     $('body').on('click', '.show-competition', function(){
 		$('#modal-competition').modal('show');
 		$('.competition-spinner').show();
-		$('.competition-table').hide();
+        $('.competition-table').hide();
+        competitor_item_id = $(this).attr('data-item-id');
 		sendAPI({action: 'get_competition_urls', item_id: $(this).attr('data-item-id')}, function(resp) {
 		    if (table != null) {
 				$('.competition-table').hide();
@@ -66,9 +68,9 @@ jQuery(document).ready(function() {
     			})
     			.on('draw', function(e) {
     				var comp_items = $('.items-competition-table tr'), item_index = 0;
-        		    for (item_index = 0; item_index < comp_items.length; item_index++) {
-                        if (comp_items[item_index].childNodes[5]) {
-                            if (comp_items[item_index].childNodes[5].innerHTML == seller_name) {
+                    for (item_index = 0; item_index < comp_items.length; item_index++) {
+                        if (comp_items[item_index].childNodes[0].childNodes[0].dataset['itemId']) {
+                            if (comp_items[item_index].childNodes[0].childNodes[0].dataset['itemId'] == competitor_item_id) {
                                 comp_items[item_index].setAttribute('class', comp_items[item_index].className + ' selected');
                             }
                         }
@@ -81,7 +83,7 @@ jQuery(document).ready(function() {
             if (resp['data']) {
                 for( var i = 0; i < resp['data'].length; i++ ) {
                     var item = resp['data'][i];
-                    t.push(['<img src="' + item['image'] +'">', '<a href="'+ item['url'] + '" target="_blank">' + item['title'] + '</a>', item['total_sold'], item['price'], item['dirty_price'], item['seller_name']])
+                    t.push(['<img src="' + item['image'] + '"' + ' data-item-id="' + item['item_id'] + '">', '<a href="'+ item['url'] + '" target="_blank">' + item['title'] + '</a>', item['total_sold'], item['price'], item['dirty_price'], '<a href="'+ BASE_URL + 'index.php/account/competitor-research#' + item['seller_name'] + '" target="_blank">' + item['seller_name'] + '</a>'])
                 }
             }
 			table.rows.add(t).draw();
