@@ -1,2 +1,2 @@
 # ebay-scrapping
-This project is for scrapping from ebay.
+This project is CodeIgniter Project for scrapping from ebay.
