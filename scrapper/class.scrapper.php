@@ -45,7 +45,7 @@ class Scrapper {
                     if ($curl = curl_init()) {
                         curl_setopt($curl, CURLOPT_URL, $item_copies_url);
                         curl_setopt($curl, CURLOPT_HEADER, 0);
-                        curl_setopt($curl, CURLOPT_TIMEOUT, 3000);
+                        curl_setopt($curl, CURLOPT_TIMEOUT, 9000);
                         curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
                         
                         curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1);
@@ -800,12 +800,10 @@ class Scrapper {
         $result = array(
             'data' => array(
                 'update' => array(
-                    'copies' => null,
                     'info' => null,
                     'trans' => null,
                 ),
                 'pending' => array(
-                    'copies' => null,
                     'info' => null
                 ),
             ),
@@ -871,22 +869,6 @@ class Scrapper {
                                     $info_date_before = date("Y-m-d H:i:s", strtotime("$now_date -1 day"));
                                     $trans_date_before = date("Y-m-d H:i:s", strtotime("$now_date -1 day"));
                                     
-                                    if ($row[6] == 1) {
-                                        if ($row[5] < $copies_date_before) {
-                                            if ($row[4] == 1) {
-                                                $this->db->update('ds_ebay_items', array('copies_checked' => 0), array('item_id' => $item_id));
-                                                $result['data']['update']['copies'][] = $item_id;
-                                            }
-                                        }
-                                    } else {
-                                        if ($row[4] == 1) {
-                                            $this->db->update('ds_ebay_items', array('copies_checked' => 0), array('item_id' => $item_id));
-                                            $result['data']['update']['copies'][] = $item_id;
-                                        } else {
-                                            $result['data']['pending']['copies'][] = $item_id;
-                                        }
-                                    }
-                                    
                                     $update_info_flag = $info_completed = 0;
                                     if ($row[3] == 1) {
                                         if ($row[2] < $info_date_before) {
@@ -908,7 +890,7 @@ class Scrapper {
                                         $this->db->update('ds_ebay_items', array('info_checked' => 0), array('item_id' => $item_id));
                                         $result['data']['update']['info'][] = array('item_id' => $item_id, 'completed' => $info_completed, 'total_sold' => $row[10], 'trans_update' => $row[8]);
                                     } else {
-                                        if ($row[3] == 1) {                                            
+                                        if ($row[3] == 1) {
                                             $this->db->update('ds_ebay_items', array('item_status' => 1), array('item_id' => $item_id));
                                         }
                                     }
@@ -932,12 +914,11 @@ class Scrapper {
                                                 'title' => $item_title,
                                                 'url' => $item_url,
                                                 'info_checked' => 0,
-                                                'copies_checked' => 0,
+                                                'copies_checked' => 1,
                                                 'trans_checked' => 1,
                                             ));
                                     $this->db->update('ds_ebay_item_trans', array('seller_id' => $seller_id), array('seller_id' => 0, 'item_id' => $item_id));
                                     $result['data']['update']['info'][] = array('item_id' => $item_id, 'completed' => 0, 'total_sold' => 0, 'trans_update' => '0000-00-00 00:00:00');
-                                    $result['data']['update']['copies'][] = $item_id;
                                     $result['data']['update']['trans'][] = $item_id;
                                 }
                             }
@@ -962,14 +943,13 @@ class Scrapper {
                 
                 $items_data = array(
                     'update' => array(
-                        'copies' => null,
                         'info' => null,
                         'trans' => null
                     ),
                     'pending' => array(
-                        'copies' => null,
                         'info' => null,
-                        'trans' => null
+                        'trans' => null,
+                        'copies' => null
                     )
                 );
                 $page_no = 1;
@@ -981,13 +961,6 @@ class Scrapper {
                             $items_data['update']['info'] = array_merge($items_data['update']['info'], $items_result['data']['update']['info']);
                         } else {
                             $items_data['update']['info'] = $items_result['data']['update']['info'];
-                        }
-                    }
-                    if ($items_result['data']['update']['copies']) {
-                        if ($items_data['update']['copies']) {
-                            $items_data['update']['copies'] = array_merge($items_data['update']['copies'], $items_result['data']['update']['copies']);
-                        } else {
-                            $items_data['update']['copies'] = $items_result['data']['update']['copies'];
                         }
                     }
                     if ($items_result['data']['update']['trans']) {
@@ -1002,13 +975,6 @@ class Scrapper {
                             $items_data['pending']['info'] = array_merge($items_data['pending']['info'], $items_result['data']['pending']['info']);
                         } else {
                             $items_data['pending']['info'] = $items_result['data']['pending']['info'];
-                        }
-                    }
-                    if ($items_result['data']['pending']['copies']) {
-                        if ($items_data['pending']['copies']) {
-                            $items_data['pending']['copies'] = array_merge($items_data['pending']['copies'], $items_result['data']['pending']['copies']);
-                        } else {
-                            $items_data['pending']['copies'] = $items_result['data']['pending']['copies'];
                         }
                     }
                 } while($items_result['count'] == EBAY_SELLER_ITEM_PER_PAGE);
@@ -1024,13 +990,6 @@ class Scrapper {
                             $items_data['update']['info'] = $items_result['data']['update']['info'];
                         }
                     }
-                    if ($items_result['data']['update']['copies']) {
-                        if ($items_data['update']['copies']) {
-                            $items_data['update']['copies'] = array_merge($items_data['update']['copies'], $items_result['data']['update']['copies']);
-                        } else {
-                            $items_data['update']['copies'] = $items_result['data']['update']['copies'];
-                        }
-                    }
                     if ($items_result['data']['update']['trans']) {
                         if ($items_data['update']['trans']) {
                             $items_data['update']['trans'] = array_merge($items_data['update']['trans'], $items_result['data']['update']['trans']);
@@ -1045,21 +1004,11 @@ class Scrapper {
                             $items_data['pending']['info'] = $items_result['data']['pending']['info'];
                         }
                     }
-                    if ($items_result['data']['pending']['copies']) {
-                        if ($items_data['pending']['copies']) {
-                            $items_data['pending']['copies'] = array_merge($items_data['pending']['copies'], $items_result['data']['pending']['copies']);
-                        } else {
-                            $items_data['pending']['copies'] = $items_result['data']['pending']['copies'];
-                        }
-                    }
                 } while($items_result['count'] == EBAY_SELLER_ITEM_PER_PAGE);
                 
                 $trans_items = null;
                 if ($items_data['update']['info']) {
                     $trans_items = $this->get_items_info($items_data['update']['info']);
-                }
-                if ($items_data['update']['copies']) {
-                    $this->get_items_copies($items_data['update']['copies']);
                 }
                 
                 $update_trans_items = $trans_temp_items = $trans_sub_items = $trans_add_items = null;
@@ -1119,20 +1068,6 @@ class Scrapper {
                         } while($item_while_condition);
                     }
                 }
-                if ($items_data['pending']['copies']) {
-                    foreach ($items_data['pending']['copies'] as $item_id) {
-                        $item_while_condition = 1;
-                        do {
-                            if ($item_row = $this->db->get_row("SELECT copies_checked FROM ds_ebay_items WHERE item_id = '{$item_id}'")) {
-                                if ($item_row[0]) {
-                                    $item_while_condition = 0;
-                                } else {
-                                    usleep(EBAY_PENDING_SLEEP);
-                                }
-                            }
-                        } while($item_while_condition);
-                    }
-                }
                 if ($items_data['pending']['trans']) {
                     foreach ($items_data['pending']['trans'] as $item_id) {
                         $item_while_condition = 1;
@@ -1147,7 +1082,51 @@ class Scrapper {
                         } while($item_while_condition);
                     }
                 }
+
+                if ($seller_items = $this->db->get_results("SELECT item_id, total_sold, copies_checked, copies_update, copies_completed FROM ds_ebay_items WHERE seller_id = '{$seller_id}' AND item_status = 1")) {
+                    $now_date = date("Y-m-d H:i:s");
+                    $copies_date_before = date("Y-m-d H:i:s", strtotime("$now_date -2 days"));
+                    foreach ($seller_items as $seller_item) {
+                        $item_id = $seller_item['item_id'];
+                        if ($seller_item['total_sold']) {
+                            if ($seller_item['copies_completed'] == 1) {
+                                if ($seller_item['copies_update'] < $copies_date_before) {
+                                    if ($seller_item['copies_checked'] == 1) {
+                                        $this->db->update('ds_ebay_items', array('copies_checked' => 0), array('item_id' => $item_id));
+                                        $items_data['update']['copies'][] = $item_id;
+                                    }
+                                }
+                            } else {
+                                if ($seller_item['copies_checked'] == 1) {
+                                    $this->db->update('ds_ebay_items', array('copies_checked' => 0), array('item_id' => $item_id));
+                                    $items_data['update']['copies'][] = $item_id;
+                                } else {
+                                    $items_data['pending']['copies'][] = $item_id;
+                                }
+                            }
+                        }
+                    }
+                }
                 
+                if ($items_data['update']['copies']) {
+                    $this->get_items_copies_url($items_data['update']['copies']);
+                }
+                
+                if ($items_data['pending']['copies']) {
+                    foreach ($items_data['pending']['copies'] as $item_id) {
+                        $item_while_condition = 1;
+                        do {
+                            if ($item_row = $this->db->get_row("SELECT copies_checked FROM ds_ebay_items WHERE item_id = '{$item_id}'")) {
+                                if ($item_row[0]) {
+                                    $item_while_condition = 0;
+                                } else {
+                                    usleep(EBAY_PENDING_SLEEP);
+                                }
+                            }
+                        } while($item_while_condition);
+                    }
+                }
+
                 $items_count = 0;
                 if ($sellers_rows = $this->db->get_row("SELECT COUNT(ID) FROM ds_ebay_items WHERE item_status = 1 AND seller_id = '{$seller_id}'")) {
                     $items_count = $sellers_rows[0];

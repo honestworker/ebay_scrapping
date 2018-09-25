@@ -26,7 +26,7 @@
     
     define( "EBAY_ITEM_TRANSACTION_ONE_TIME_COUNT", 300 );
     define( "EBAY_ITEM_INFO_ONE_TIME_COUNT",        300 );
-    define( "EBAY_COPIES_ITEM_ONE_TIME",            100 );
+    define( "EBAY_COPIES_ITEM_ONE_TIME",            300 );
     define( "EBAY_FIND_ITEMS_ONE_TIME_COUNT",       50 );
     
     define( "EBAY_FIND_URL",                        "http://svcs.ebay.com/services/search/FindingService/v1?operation-name=findItemsAdvanced&global-id=" );
