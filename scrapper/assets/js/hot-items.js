@@ -98,8 +98,16 @@ jQuery(document).ready(function() {
                 'sold_min' : sold_min, 'sold_max' : sold_max, 'cond_type' : cond_type, 'country' : country, 'sold_period' : sold_period, 'item_count' : item_count };
         
         //alert(keyword + ":" + category + ":" + fb_min + ":" + fb_max + ":" + price_min + ":" + price_max + ":" + quantity_min + ":" + quantity_max + ":" + sold_min + ":" + sold_max + ":" + cond_type + ":" + country + ":" + sold_period + ":" + item_count);
+        
         if (keyword !== "")
         {
+            var keyword_split = keyword.replace(/\s+/g, ' ').split(" ");
+            if (keyword_split) {
+                if (keyword_split.length < 3) {
+                    alert("Please insert the keywords more than 3 words!");
+                    return;
+                }
+            }
             if ($("#item_count").val() <= item_count_threshold) {
                 $.getJSON(BASE_URL + 'index.php/api/check_api_available/', function(resp1) {
                     if (resp1 === -1) {
@@ -150,7 +158,7 @@ jQuery(document).ready(function() {
                     }    
 		        });
             } else {
-                alert("Please insert the Item Number less than 600!");
+                alert("Please insert the Item Number less than 100!");
             }
         } else {
             alert("Please insert the keyword!");
