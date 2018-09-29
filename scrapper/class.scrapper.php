@@ -944,7 +944,8 @@ class Scrapper {
                 $items_data = array(
                     'update' => array(
                         'info' => null,
-                        'trans' => null
+                        'trans' => null,
+                        'copies' => null
                     ),
                     'pending' => array(
                         'info' => null,
