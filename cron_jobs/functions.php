@@ -20,6 +20,7 @@
     define( "LIMIT_API_CALL_COUNT",                 5000 );
     define( "API_APP1_COUNT",                       138 );
     define( "API_APP2_COUNT",                       3 );
+    define( "SELLER_MAX_ITEM",                      10000 );
 
     define( "EBAY_API_VERSION",                     1029 );
     define( "EBAY_API_END_POINT",                   "https://api.ebay.com/ws/api.dll" );
@@ -57,7 +58,7 @@
     define( "EBAY_SELLER_ITEM_UK_URL",              "https://www.ebay.co.uk/sch/m.html?_nkw=&_armrs=1&_from=&_fcid=" );
     define( "EBAY_SELLER_ITEM_URL",                 "&_sop=10&_ssn=" );
     define( "EBAY_SELLER_ITEM_PER_PAGE",            200 );
-    
+
     define( "EBAY_SHOP_ITEM_PER_PAGE",              48 );
 
     define( "EBAY_ITEM_URL",                        "http://open.api.ebay.com/shopping?callname=GetSingleItem&responseencoding=JSON&appid=" );

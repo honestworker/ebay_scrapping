@@ -6,7 +6,7 @@ jQuery(document).ready(function() {
     
 	var ERRORS = {
 		'seller_not_found': 'One or more of the seller User IDs you entered was not found.',
-		'items_out_limit': 'The seller has more than 7000 items.',
+		'items_out_limit': 'The seller has more than 10000 items.',
 		'sales_error': 'An error occurred during the analysis. We are already working on its correction. Please try again later.'
 	}
 
@@ -228,11 +228,15 @@ jQuery(document).ready(function() {
                     get_seller_info(name, range);
 				} else if (resp['status'] == 'pending_init') {
                     get_seller_info(name, range);
-                } else {
+                } else if (resp['status'] == 'overflow') {
+                    errorCR(ERRORS['items_out_limit']);
+                    $('.seller-badges').hide();
+                    $('.btn-search-competitor').removeAttr('disabled');
+				} else {
                     errorCR(ERRORS['sales_error']);
                     $('.seller-badges').hide();
                     $('.btn-search-competitor').removeAttr('disabled');
-				}
+                }
 			})
 		}, 5000);
     }
@@ -272,6 +276,14 @@ jQuery(document).ready(function() {
                 get_seller_info(seller_name, range);
             } else if (resp['status'] == 'pending') {
                 get_seller_info(seller_name, range);
+            } else if (resp['status'] == 'overflow') {
+                errorCR(ERRORS['items_out_limit']);
+                $('.seller-badges').hide();
+                $('.btn-search-competitor').removeAttr('disabled');
+            } else {
+                errorCR(ERRORS['sales_error']);
+                $('.seller-badges').hide();
+                $('.btn-search-competitor').removeAttr('disabled');
             }
         })
         

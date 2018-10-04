@@ -796,140 +796,127 @@ class Scrapper {
         return $pending_items;
     }
 
-    private function get_seller_items_by_page($seller_id, $name, $country, $page_no) {
-        $result = array(
-            'data' => array(
-                'update' => array(
-                    'info' => null,
-                    'trans' => null,
-                ),
-                'pending' => array(
-                    'info' => null
-                ),
-            ),
-            'count' => 0
-        );
-        
-        $seller_items_url = get_find_advanced_items_by_name_url($name, $country, $page_no);
-        $total_enties = $check_count = 0;
-        if ($curl = curl_init()) {
-            curl_setopt($curl, CURLOPT_URL, $seller_items_url);
-            curl_setopt($curl, CURLOPT_HEADER, 0);
-            curl_setopt($curl, CURLOPT_TIMEOUT, 120);
-            curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-            
-            curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1);
-            
-            $seller_items_html_data = curl_exec($curl);
-            curl_close($curl);
-            
-            $dom = str_get_html($seller_items_html_data);
-            if( !(empty($dom) || !is_object($dom)) ) {
-                if (preg_match('#class="rcnt"(.*?)</span>#', $seller_items_html_data, $match)){
-                    $total_enties = (int)trim(str_replace([',','>'], '', $match[1]));
-                }
-                if ($total_enties) {
-                    if ($item_els = $dom->find('li.sresult')) {
-                        foreach ($item_els as $item_el) {
-                            $item_id = 0;
-                            $item_url = $item_title = $title_url = "";
-                            if ($item_url_el = $item_el->find('h3.lvtitle a', 0)) {
-                                $item_url = $item_url_el->href;                                
-                                $item_title = str_replace("'", "", $item_url_el->plaintext);
-                                if (preg_match('#itm\/(.*?)\/#', $item_url, $match)) {
-                                    $title_url = $match[1];
+    private function get_seller_items_by_page($seller_id, $name) {
+        $result = array();
+
+        $page_no = 1;
+        do {
+            $items_count = 0;
+            $seller_items_url = get_find_advanced_items_by_name_url($name, 'EBAY-US', $page_no);
+            $total_enties = $check_count = 0;
+            if ($curl = curl_init()) {
+                curl_setopt($curl, CURLOPT_URL, $seller_items_url);
+                curl_setopt($curl, CURLOPT_HEADER, 0);
+                curl_setopt($curl, CURLOPT_TIMEOUT, 120);
+                curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+                
+                curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1);
+                
+                $seller_items_html_data = curl_exec($curl);
+                curl_close($curl);
+                
+                $dom = str_get_html($seller_items_html_data);
+                if( !(empty($dom) || !is_object($dom)) ) {
+                    if (preg_match('#class="rcnt"(.*?)</span>#', $seller_items_html_data, $match)){
+                        $total_enties = (int)trim(str_replace([',','>'], '', $match[1]));
+                    }
+                    if ($total_enties) {
+                        if ($item_els = $dom->find('li.sresult')) {
+                            foreach ($item_els as $item_el) {
+                                $item_id = 0;
+                                $item_url = $item_title = $title_url = "";
+                                if ($item_url_el = $item_el->find('h3.lvtitle a', 0)) {
+                                    $item_url = $item_url_el->href;                                
+                                    $item_title = str_replace("'", "", $item_url_el->plaintext);
+                                    if (preg_match('#itm\/(.*?)\/#', $item_url, $match)) {
+                                        $title_url = $match[1];
+                                    }
                                 }
-                            }
-                            if (preg_match('#\/([\d]+)\?#', $item_url, $match)) {
-                                $item_id = $match[1];
-                            }
-                            if (!$item_id) {
-                                if (preg_match("\/([\d]+)$", $item_url, $match)) {
+                                if (preg_match('#\/([\d]+)\?#', $item_url, $match)) {
                                     $item_id = $match[1];
                                 }
-                            }
-                            $result['count'] = $result['count'] + 1;
-                            if ($item_id && $item_id > 1000) {
-                                if ($row = $this->db->get_row("SELECT seller_id, info_checked, info_update, info_completed, copies_checked, copies_update, copies_completed, trans_checked, trans_update, trans_completed, total_sold FROM ds_ebay_items WHERE item_id = '{$item_id}'")) {
-                                    /*
-                                        seller_id :                     0
-                                        info_checked :                  1
-                                        info_update :                   2
-                                        info_completed :                3
-                                        copies_checked :                4
-                                        copies_update :                 5
-                                        copies_completed :              6
-                                        trans_checked :                 7
-                                        trans_update :                  8
-                                        trans_completed :               9
-                                        total_sold :                    10
-                                    */
-                                    $now_date = date("Y-m-d H:i:s");
-                                    $copies_date_before = date("Y-m-d H:i:s", strtotime("$now_date -1 day"));
-                                    $info_date_before = date("Y-m-d H:i:s", strtotime("$now_date -1 day"));
-                                    $trans_date_before = date("Y-m-d H:i:s", strtotime("$now_date -1 day"));
-                                    
-                                    $update_info_flag = $info_completed = 0;
-                                    if ($row[3] == 1) {
-                                        if ($row[2] < $info_date_before) {
-                                            if ($row[1] == 1) {
-                                                $update_info_flag = 1;
-                                                $info_completed = 1;
-                                            }
+                                if (!$item_id) {
+                                    if (preg_match("\/([\d]+)$", $item_url, $match)) {
+                                        $item_id = $match[1];
+                                    }
+                                }
+                                if ($item_id && $item_id > 1000) {
+                                    $items_count = $items_count + 1;
+                                    if (count($result)) {
+                                        if (!in_array($item_id, $result)) {
+                                            $result[] = $item_id;
                                         }
                                     } else {
-                                        if ($row[1] == 1) {
-                                            $update_info_flag = 1;
-                                            $info_completed = 0;
-                                        } else {
-                                            $result['data']['pending']['info'][] = $item_id;
-                                        }
+                                        $result[] = $item_id;
                                     }
-                                    
-                                    if ($update_info_flag) {
-                                        $this->db->update('ds_ebay_items', array('info_checked' => 0), array('item_id' => $item_id));
-                                        $result['data']['update']['info'][] = array('item_id' => $item_id, 'completed' => $info_completed, 'total_sold' => $row[10], 'trans_update' => $row[8]);
-                                    } else {
-                                        if ($row[3] == 1) {
-                                            $this->db->update('ds_ebay_items', array('item_status' => 1), array('item_id' => $item_id));
-                                        }
-                                    }
-                                    
-                                    if ($row[9] == 1) {
-                                        if ($row[8] < $trans_date_before) {
-                                            if ($row[7] == 1) {
-                                                $result['data']['update']['trans'][] = $item_id;
-                                            }
-                                        }
-                                    } else {
-                                        if ($row[7] == 1) {
-                                            $result['data']['update']['trans'][] = $item_id;
-                                        }
-                                    }
-                                } else {
-                                    $this->db->insert('ds_ebay_items',
-                                          array(
-                                                'item_id' => $item_id,
-                                                'seller_id' => $seller_id,
-                                                'title' => $item_title,
-                                                'url' => $item_url,
-                                                'info_checked' => 0,
-                                                'copies_checked' => 1,
-                                                'trans_checked' => 1,
-                                            ));
-                                    $this->db->update('ds_ebay_item_trans', array('seller_id' => $seller_id), array('seller_id' => 0, 'item_id' => $item_id));
-                                    $result['data']['update']['info'][] = array('item_id' => $item_id, 'completed' => 0, 'total_sold' => 0, 'trans_update' => '0000-00-00 00:00:00');
-                                    $result['data']['update']['trans'][] = $item_id;
                                 }
                             }
                         }
                     }
-                }
+                }                
+                unset($curl);
             }
-            
-            unset($curl);
-        }
+        } while($items_count == EBAY_SELLER_ITEM_PER_PAGE);
         
+        $page_no = 1;
+        do {
+            $items_count = 0;
+            $seller_items_url = get_find_advanced_items_by_name_url($name, 'EBAY-GB', $page_no);
+            $total_enties = $check_count = 0;
+            if ($curl = curl_init()) {
+                curl_setopt($curl, CURLOPT_URL, $seller_items_url);
+                curl_setopt($curl, CURLOPT_HEADER, 0);
+                curl_setopt($curl, CURLOPT_TIMEOUT, 120);
+                curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+                
+                curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1);
+                
+                $seller_items_html_data = curl_exec($curl);
+                curl_close($curl);
+                
+                $dom = str_get_html($seller_items_html_data);
+                if( !(empty($dom) || !is_object($dom)) ) {
+                    if (preg_match('#class="rcnt"(.*?)</span>#', $seller_items_html_data, $match)){
+                        $total_enties = (int)trim(str_replace([',','>'], '', $match[1]));
+                    }
+                    if ($total_enties) {
+                        if ($item_els = $dom->find('li.sresult')) {
+                            foreach ($item_els as $item_el) {
+                                $item_id = 0;
+                                $item_url = $item_title = $title_url = "";
+                                if ($item_url_el = $item_el->find('h3.lvtitle a', 0)) {
+                                    $item_url = $item_url_el->href;                                
+                                    $item_title = str_replace("'", "", $item_url_el->plaintext);
+                                    if (preg_match('#itm\/(.*?)\/#', $item_url, $match)) {
+                                        $title_url = $match[1];
+                                    }
+                                }
+                                if (preg_match('#\/([\d]+)\?#', $item_url, $match)) {
+                                    $item_id = $match[1];
+                                }
+                                if (!$item_id) {
+                                    if (preg_match("\/([\d]+)$", $item_url, $match)) {
+                                        $item_id = $match[1];
+                                    }
+                                }
+                                if ($item_id && $item_id > 1000) {
+                                    $items_count = $items_count + 1;
+                                    if (count($result)) {
+                                        if (!in_array($item_id, $result)) {
+                                            $result[] = $item_id;
+                                        }
+                                    } else {
+                                        $result[] = $item_id;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }                
+                unset($curl);
+            }
+        } while($items_count == EBAY_SELLER_ITEM_PER_PAGE);
+
         return $result;
     }
 
@@ -953,60 +940,87 @@ class Scrapper {
                         'copies' => null
                     )
                 );
-                $page_no = 1;
-                do {
-                    $items_result = $this->get_seller_items_by_page($seller_id, $name, 'EBAY-US', $page_no);
-                    $page_no = $page_no + 1;
-                    if ($items_result['data']['update']['info']) {
-                        if ($items_data['update']['info']) {
-                            $items_data['update']['info'] = array_merge($items_data['update']['info'], $items_result['data']['update']['info']);
+
+                $items = $this->get_seller_items_by_page($seller_id, $name);
+                if (count($items) > SELLER_MAX_ITEM) {                    
+                    $now_date = date("Y-m-d H:i:s");
+                    $this->db->update('ds_ebay_sellers', array('items_count' => 0, 'checked' => 1, 'completed' => 1, 'update_date' => $now_date, 'overflow' => 1), array('ID' => $seller_id));
+                    return;
+                }
+                foreach ($items as $item_id) {
+                    if ($row = $this->db->get_row("SELECT seller_id, info_checked, info_update, info_completed, copies_checked, copies_update, copies_completed, trans_checked, trans_update, trans_completed, total_sold FROM ds_ebay_items WHERE item_id = '{$item_id}'")) {
+                        /*
+                            seller_id :                     0
+                            info_checked :                  1
+                            info_update :                   2
+                            info_completed :                3
+                            copies_checked :                4
+                            copies_update :                 5
+                            copies_completed :              6
+                            trans_checked :                 7
+                            trans_update :                  8
+                            trans_completed :               9
+                            total_sold :                    10
+                        */
+                        $now_date = date("Y-m-d H:i:s");
+                        $copies_date_before = date("Y-m-d H:i:s", strtotime("$now_date -1 day"));
+                        $info_date_before = date("Y-m-d H:i:s", strtotime("$now_date -1 day"));
+                        $trans_date_before = date("Y-m-d H:i:s", strtotime("$now_date -1 day"));
+                        
+                        $update_info_flag = $info_completed = 0;
+                        if ($row[3] == 1) {
+                            if ($row[2] < $info_date_before) {
+                                if ($row[1] == 1) {
+                                    $update_info_flag = 1;
+                                    $info_completed = 1;
+                                }
+                            }
                         } else {
-                            $items_data['update']['info'] = $items_result['data']['update']['info'];
+                            if ($row[1] == 1) {
+                                $update_info_flag = 1;
+                                $info_completed = 0;
+                            } else {
+                                $items_data['pending']['info'][] = $item_id;
+                            }
                         }
-                    }
-                    if ($items_result['data']['update']['trans']) {
-                        if ($items_data['update']['trans']) {
-                            $items_data['update']['trans'] = array_merge($items_data['update']['trans'], $items_result['data']['update']['trans']);
+                        
+                        if ($update_info_flag) {
+                            $this->db->update('ds_ebay_items', array('info_checked' => 0), array('item_id' => $item_id));
+                            $items_data['update']['info'][] = array('item_id' => $item_id, 'completed' => $info_completed, 'total_sold' => $row[10], 'trans_update' => $row[8]);
                         } else {
-                            $items_data['update']['trans'] = $items_result['data']['update']['trans'];
+                            if ($row[3] == 1) {
+                                $this->db->update('ds_ebay_items', array('item_status' => 1), array('item_id' => $item_id));
+                            }
                         }
-                    }
-                    if ($items_result['data']['pending']['info']) {
-                        if ($items_data['pending']['info']) {
-                            $items_data['pending']['info'] = array_merge($items_data['pending']['info'], $items_result['data']['pending']['info']);
+                        
+                        if ($row[9] == 1) {
+                            if ($row[8] < $trans_date_before) {
+                                if ($row[7] == 1) {
+                                    $items_data['update']['trans'][] = $item_id;
+                                }
+                            }
                         } else {
-                            $items_data['pending']['info'] = $items_result['data']['pending']['info'];
+                            if ($row[7] == 1) {
+                                $items_data['update']['trans'][] = $item_id;
+                            }
                         }
+                    } else {
+                        $this->db->insert('ds_ebay_items',
+                                array(
+                                    'item_id' => $item_id,
+                                    'seller_id' => $seller_id,
+                                    'title' => $item_title,
+                                    'url' => $item_url,
+                                    'info_checked' => 0,
+                                    'copies_checked' => 1,
+                                    'trans_checked' => 1,
+                                ));
+                        $this->db->update('ds_ebay_item_trans', array('seller_id' => $seller_id), array('seller_id' => 0, 'item_id' => $item_id));
+                        $items_data['update']['info'][] = array('item_id' => $item_id, 'completed' => 0, 'total_sold' => 0, 'trans_update' => '0000-00-00 00:00:00');
+                        $items_data['update']['trans'][] = $item_id;
                     }
-                } while($items_result['count'] == EBAY_SELLER_ITEM_PER_PAGE);
-                
-                $page_no = 1;
-                do {
-                    $items_result = $this->get_seller_items_by_page($seller_id, $name, 'EBAY-GB', $page_no);
-                    $page_no = $page_no + 1;
-                    if ($items_result['data']['update']['info']) {
-                        if ($items_data['update']['info']) {
-                            $items_data['update']['info'] = array_merge($items_data['update']['info'], $items_result['data']['update']['info']);
-                        } else {
-                            $items_data['update']['info'] = $items_result['data']['update']['info'];
-                        }
-                    }
-                    if ($items_result['data']['update']['trans']) {
-                        if ($items_data['update']['trans']) {
-                            $items_data['update']['trans'] = array_merge($items_data['update']['trans'], $items_result['data']['update']['trans']);
-                        } else {
-                            $items_data['update']['trans'] = $items_result['data']['update']['trans'];
-                        }
-                    }
-                    if ($items_result['data']['pending']['info']) {
-                        if ($items_data['pending']['info']) {
-                            $items_data['pending']['info'] = array_merge($items_data['pending']['info'], $items_result['data']['pending']['info']);
-                        } else {
-                            $items_data['pending']['info'] = $items_result['data']['pending']['info'];
-                        }
-                    }
-                } while($items_result['count'] == EBAY_SELLER_ITEM_PER_PAGE);
-                
+                }
+
                 $trans_items = null;
                 if ($items_data['update']['info']) {
                     $trans_items = $this->get_items_info($items_data['update']['info']);
@@ -1133,7 +1147,7 @@ class Scrapper {
                     $items_count = $sellers_rows[0];
                 }
                 $now_date = date("Y-m-d H:i:s");
-                $this->db->update('ds_ebay_sellers', array('items_count' => $items_count, 'checked' => 1, 'completed' => 1, 'update_date' => $now_date), array('ID' => $seller_id));
+                $this->db->update('ds_ebay_sellers', array('items_count' => $items_count, 'checked' => 1, 'completed' => 1, 'update_date' => $now_date, 'overflow' => 0), array('ID' => $seller_id));
             }
         }
     }
@@ -1187,20 +1201,24 @@ class Scrapper {
     public function check_seller($name) {
         $result = 'pending';
         $seller_id = 0;
-        if ( $row = $this->db->get_row("SELECT ID, checked, completed, update_date FROM ds_ebay_sellers WHERE name = '{$name}'") ) {
-            $seller_id = $row[0];
-            if ($row[2]) {
-                $now_date = date("Y-m-d H:i:s");
-                $date_before = date("Y-m-d H:i:s", strtotime("$now_date -2 days"));
-                $result = 'success';
-                if ($date_before > $row[3] && $row[1]) {
-                    $this->db->update('ds_ebay_sellers', array('checked' => 0, 'completed' => 0), array('ID' => $seller_id));
-                    $result = 'pending_init';
-                }
+        if ( $row = $this->db->get_row("SELECT ID, checked, completed, update_date, overflow FROM ds_ebay_sellers WHERE name = '{$name}'") ) {
+            if ($row[2] == 1 && $row[4] == 1) {
+                $result = 'overflow';
             } else {
-                if ($row[1]) {
-                    $this->db->update('ds_ebay_sellers', array('checked' => 0), array('ID' => $seller_id));
-                    $result = 'pending_init';
+                $seller_id = $row[0];
+                if ($row[2]) {
+                    $now_date = date("Y-m-d H:i:s");
+                    $date_before = date("Y-m-d H:i:s", strtotime("$now_date -2 days"));
+                    $result = 'success';
+                    if ($date_before > $row[3] && $row[1]) {
+                        $this->db->update('ds_ebay_sellers', array('checked' => 0, 'completed' => 0), array('ID' => $seller_id));
+                        $result = 'pending_init';
+                    }
+                } else {
+                    if ($row[1]) {
+                        $this->db->update('ds_ebay_sellers', array('checked' => 0), array('ID' => $seller_id));
+                        $result = 'pending_init';
+                    }
                 }
             }
         } else {
