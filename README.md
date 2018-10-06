@@ -5,13 +5,13 @@ This project is CodeIgniter Project for scrapping from ebay.
 - Hot Items
 
 <p align="center">
-  <img width="700px" src="https://github.com/honestworker/ebay_scrapping/images/1.png">
+  <img width="700px" src="https://github.com/honestworker/ebay_scrapping/blob/master/images/1.png">
 </p>
 
 <p align="center">
-  <img width="700px" src="https://github.com/honestworker/ebay_scrapping/images/2.png">
+  <img width="700px" src="https://github.com/honestworker/ebay_scrapping/blob/master/images/2.png">
 </p>
 
 <p align="center">
-  <img width="700px" src="https://github.com/honestworker/ebay_scrapping/images/3.png">
+  <img width="700px" src="https://github.com/honestworker/ebay_scrapping/blob/master/images/3.png">
 </p>
