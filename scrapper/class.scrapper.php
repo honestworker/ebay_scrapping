@@ -45,7 +45,7 @@ class Scrapper {
                     if ($curl = curl_init()) {
                         curl_setopt($curl, CURLOPT_URL, $item_copies_url);
                         curl_setopt($curl, CURLOPT_HEADER, 0);
-                        curl_setopt($curl, CURLOPT_TIMEOUT, 9000);
+                        curl_setopt($curl, CURLOPT_TIMEOUT, 15000);
                         curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
                         
                         curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1);
@@ -573,7 +573,7 @@ class Scrapper {
                     curl_setopt($curl[$item_id], CURLOPT_HEADER, 1);
                     curl_setopt($curl[$item_id], CURLOPT_HTTPHEADER, $trans_url_head);
                     curl_setopt($curl[$item_id], CURLOPT_POSTFIELDS, $trans_url_body);
-                    curl_setopt($curl[$item_id], CURLOPT_TIMEOUT, 60);
+                    curl_setopt($curl[$item_id], CURLOPT_TIMEOUT, 120);
                     curl_setopt($curl[$item_id], CURLOPT_RETURNTRANSFER, 1);
                     
                     curl_setopt($curl[$item_id], CURLOPT_FOLLOWLOCATION, 1);
@@ -663,7 +663,7 @@ class Scrapper {
                                 curl_setopt($curl[$item_id_plus_page], CURLOPT_HEADER, 1);
                                 curl_setopt($curl[$item_id_plus_page], CURLOPT_HTTPHEADER, $trans_url_head);
                                 curl_setopt($curl[$item_id_plus_page], CURLOPT_POSTFIELDS, $trans_url_body);
-                                curl_setopt($curl[$item_id_plus_page], CURLOPT_TIMEOUT, 60);
+                                curl_setopt($curl[$item_id_plus_page], CURLOPT_TIMEOUT, 120);
                                 curl_setopt($curl[$item_id_plus_page], CURLOPT_RETURNTRANSFER, 1);
                                 
                                 curl_setopt($curl[$item_id_plus_page], CURLOPT_FOLLOWLOCATION, 1);
@@ -807,7 +807,7 @@ class Scrapper {
             if ($curl = curl_init()) {
                 curl_setopt($curl, CURLOPT_URL, $seller_items_url);
                 curl_setopt($curl, CURLOPT_HEADER, 0);
-                curl_setopt($curl, CURLOPT_TIMEOUT, 120);
+                curl_setopt($curl, CURLOPT_TIMEOUT, 300);
                 curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
                 
                 curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1);
@@ -854,8 +854,9 @@ class Scrapper {
                         }
                     }
                 }                
-                unset($curl);
+                //unset($curl);
             }
+            $page_no = $page_no + 1;
         } while($items_count == EBAY_SELLER_ITEM_PER_PAGE);
         
         $page_no = 1;
@@ -866,7 +867,7 @@ class Scrapper {
             if ($curl = curl_init()) {
                 curl_setopt($curl, CURLOPT_URL, $seller_items_url);
                 curl_setopt($curl, CURLOPT_HEADER, 0);
-                curl_setopt($curl, CURLOPT_TIMEOUT, 120);
+                curl_setopt($curl, CURLOPT_TIMEOUT, 300);
                 curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
                 
                 curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1);
@@ -913,8 +914,9 @@ class Scrapper {
                         }
                     }
                 }                
-                unset($curl);
+                //unset($curl);
             }
+            $page_no = $page_no + 1;
         } while($items_count == EBAY_SELLER_ITEM_PER_PAGE);
 
         return $result;
@@ -1009,8 +1011,6 @@ class Scrapper {
                                 array(
                                     'item_id' => $item_id,
                                     'seller_id' => $seller_id,
-                                    'title' => $item_title,
-                                    'url' => $item_url,
                                     'info_checked' => 0,
                                     'copies_checked' => 1,
                                     'trans_checked' => 1,
