@@ -7,6 +7,23 @@ class Scrapper {
         $this->db = new DB();
     }
 
+    private function write_log($content, $function = '') {
+        $logFilePath = './debug.txt';
+        ob_start();
+        
+        if (file_exists($logFilePath)) {
+            include($logFilePath);
+        }
+        $currentTime = date("Y-m-d H-i-s");
+        
+        echo "\n\n$currentTime: [$function]: $content";
+        
+        $logFile = fopen($logFilePath, 'w');
+        fwrite($logFile, ob_get_contents());
+        fclose($logFile);
+        ob_end_flush();
+    }
+    
     private function get_api_call_app_no($name) {
         if ($row = $this->db->get_row("SELECT app_no, call_count FROM ds_ebay_api_call WHERE name = '{$name}'")) {
             $app_no = (int)$row[0];
@@ -45,7 +62,7 @@ class Scrapper {
                     if ($curl = curl_init()) {
                         curl_setopt($curl, CURLOPT_URL, $item_copies_url);
                         curl_setopt($curl, CURLOPT_HEADER, 0);
-                        curl_setopt($curl, CURLOPT_TIMEOUT, 15000);
+                        curl_setopt($curl, CURLOPT_TIMEOUT, 60000);
                         curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
                         
                         curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1);
@@ -118,7 +135,8 @@ class Scrapper {
                             }
                         }
                     }
-                    
+
+                    $copies_count = $copies_count > 0 ? $copies_count : 1;
                     $now_date = date("Y-m-d H:i:s");
                     $this->db->update('ds_ebay_items',
                         array(
@@ -154,7 +172,7 @@ class Scrapper {
                 $curl_items = null;
             }
         }
-        if ($item_count) {            
+        if ($item_count) {
             $items_result = $this->get_items_copies_url($curl_items);
         }
     }
@@ -596,44 +614,46 @@ class Scrapper {
                             $item_trans_extra_info[$item_id]['page_count'] = -1;
                         } else {
                             $item_trans_xml = simplexml_load_string(strstr($item_trans_data, '<?xml'));
-                            if (!$item_trans_xml->Errors) {
-                                $item_trans_extra_info[$item_id]['page_count'] = $item_trans_xml->PaginationResult[0]->TotalNumberOfPages;
-                                if (isset($item_trans_xml->TransactionArray)) {
-                                    foreach ($item_trans_xml->TransactionArray[0]->children() as $trans) {
-                                        $quantity = (int)$trans[0]->QuantityPurchased;                            
-                                        $trans_date = date("Y-m-d H:i:s", strtotime($trans[0]->CreatedDate));
-                                        $converted_price = (float)$trans[0]->ConvertedTransactionPrice;
-                                        $converted_currency = utf8_decode($trans[0]->ConvertedTransactionPrice['currencyID']);
-                                        $trans_price = (float)$trans[0]->TransactionPrice;
-                                        $trans_currency = utf8_decode($trans[0]->TransactionPrice['currencyID']);
-                                        //$buyer_id = $trans[0]->Buyer[0]->UserID;
-                                        //$shipping_country = $trans[0]->Buyer[0]->BuyerInfo[0]->ShippingAddress[0]->Country;
-                                        //$shipping_postal = $trans[0]->Buyer[0]->BuyerInfo[0]->ShippingAddress[0]->PostalCode;
-                                        $item_trans_extra_info[$item_id]['dirty_price'] = $trans_price;
-                                        if ($row = $this->db->get_row("SELECT ID FROM ds_ebay_item_trans WHERE item_id = '{$item_id}' AND trans_date = '{$trans_date}' AND quantity = '{$quantity}'")) {
-                                        } else {
-                                            $this->db->insert('ds_ebay_item_trans',
-                                                array(
-                                                    'item_id' => $item_id,
-                                                    'seller_id' => $items[$item_id]['seller_id'],
-                                                    'quantity' => $quantity,
-                                                    'trans_date' => $trans_date,
-                                                    'converted_price' => $converted_price,
-                                                    'converted_currency' => $converted_currency,
-                                                    'trans_price' => $trans_price,
-                                                    'trans_currency' => $trans_currency,
-                                                    'total' => (float)$converted_price * $quantity
-                                                    //'buyer_id' => $buyer_id,
-                                                    //'shipping_country' => $shipping_country,
-                                                    //'shipping_postal' => $shipping_postal,
-                                                ));
+                            if (gettype($item_trans_xml) == 'object') {
+                                if (!isset($item_trans_xml->Errors) || empty(($item_trans_xml->Errors))) {
+                                    $item_trans_extra_info[$item_id]['page_count'] = $item_trans_xml->PaginationResult[0]->TotalNumberOfPages;
+                                    if (isset($item_trans_xml->TransactionArray)) {
+                                        foreach ($item_trans_xml->TransactionArray[0]->children() as $trans) {
+                                            $quantity = (int)$trans[0]->QuantityPurchased;                            
+                                            $trans_date = date("Y-m-d H:i:s", strtotime($trans[0]->CreatedDate));
+                                            $converted_price = (float)$trans[0]->ConvertedTransactionPrice;
+                                            $converted_currency = utf8_decode($trans[0]->ConvertedTransactionPrice['currencyID']);
+                                            $trans_price = (float)$trans[0]->TransactionPrice;
+                                            $trans_currency = utf8_decode($trans[0]->TransactionPrice['currencyID']);
+                                            //$buyer_id = $trans[0]->Buyer[0]->UserID;
+                                            //$shipping_country = $trans[0]->Buyer[0]->BuyerInfo[0]->ShippingAddress[0]->Country;
+                                            //$shipping_postal = $trans[0]->Buyer[0]->BuyerInfo[0]->ShippingAddress[0]->PostalCode;
+                                            $item_trans_extra_info[$item_id]['dirty_price'] = $trans_price;
+                                            if ($row = $this->db->get_row("SELECT ID FROM ds_ebay_item_trans WHERE item_id = '{$item_id}' AND trans_date = '{$trans_date}' AND quantity = '{$quantity}'")) {
+                                            } else {
+                                                $this->db->insert('ds_ebay_item_trans',
+                                                    array(
+                                                        'item_id' => $item_id,
+                                                        'seller_id' => $items[$item_id]['seller_id'],
+                                                        'quantity' => $quantity,
+                                                        'trans_date' => $trans_date,
+                                                        'converted_price' => $converted_price,
+                                                        'converted_currency' => $converted_currency,
+                                                        'trans_price' => $trans_price,
+                                                        'trans_currency' => $trans_currency,
+                                                        'total' => (float)$converted_price * $quantity
+                                                        //'buyer_id' => $buyer_id,
+                                                        //'shipping_country' => $shipping_country,
+                                                        //'shipping_postal' => $shipping_postal,
+                                                    ));
+                                            }
                                         }
                                     }
-                                }
-                                if ($item_trans_extra_info[$item_id]['page_count'] == 1) {
-                                    $this->db->update('ds_ebay_items', array('dirty_price' => $item_trans_extra_info[$item_id]['dirty_price'], 'trans_checked' => 1, 'trans_update' => date("Y-m-d H:i:s"), 'trans_completed' => 1), array('item_id' => $item_id));
-                                } else if ($item_trans_extra_info[$item_id]['page_count'] == 0) {
-                                    $this->db->update('ds_ebay_items', array('trans_checked' => 1, 'trans_update' => date("Y-m-d H:i:s"), 'trans_completed' => 1), array('item_id' => $item_id));
+                                    if ($item_trans_extra_info[$item_id]['page_count'] == 1) {
+                                        $this->db->update('ds_ebay_items', array('dirty_price' => $item_trans_extra_info[$item_id]['dirty_price'], 'trans_checked' => 1, 'trans_update' => date("Y-m-d H:i:s"), 'trans_completed' => 1), array('item_id' => $item_id));
+                                    } else if ($item_trans_extra_info[$item_id]['page_count'] == 0) {
+                                        $this->db->update('ds_ebay_items', array('trans_checked' => 1, 'trans_update' => date("Y-m-d H:i:s"), 'trans_completed' => 1), array('item_id' => $item_id));
+                                    }
                                 }
                             }
                         }
@@ -689,36 +709,38 @@ class Scrapper {
                             $item_trans_extra_info[$item_id]['page_count'] = -1;
                         } else {
                             $item_trans_xml = simplexml_load_string(strstr($item_trans_data, '<?xml'));
-                            if (!$item_trans_xml->Errors) {
-                                if (isset($item_trans_xml->TransactionArray)) {
-                                    foreach ($item_trans_xml->TransactionArray[0]->children() as $trans) {
-                                        $quantity = (int)$trans[0]->QuantityPurchased;                            
-                                        $trans_date = date("Y-m-d H:i:s", strtotime($trans[0]->CreatedDate));
-                                        $converted_price = (float)$trans[0]->ConvertedTransactionPrice;
-                                        $converted_currency = utf8_decode($trans[0]->ConvertedTransactionPrice['currencyID']);
-                                        $trans_price = (float)$trans[0]->TransactionPrice;
-                                        $trans_currency = utf8_decode($trans[0]->TransactionPrice['currencyID']);
-                                        //$buyer_id = $trans[0]->Buyer[0]->UserID;
-                                        //$shipping_country = $trans[0]->Buyer[0]->BuyerInfo[0]->ShippingAddress[0]->Country;
-                                        //$shipping_postal = $trans[0]->Buyer[0]->BuyerInfo[0]->ShippingAddress[0]->PostalCode;
-                                        $item_trans_extra_info[$item_id]['dirty_price'] = $trans_price;
-                                        if ($row = $this->db->get_row("SELECT ID FROM ds_ebay_item_trans WHERE item_id = '{$item_id}' AND trans_date = '{$trans_date}' AND quantity = '{$quantity}' AND converted_price = '{$converted_price}'")) {
-                                        } else {
-                                            $this->db->insert('ds_ebay_item_trans',
-                                                array(
-                                                    'item_id' => $item_id,
-                                                    'seller_id' => $items[$item_id]['seller_id'],
-                                                    'quantity' => $quantity,
-                                                    'trans_date' => $trans_date,
-                                                    'converted_price' => $converted_price,
-                                                    'converted_currency' => $converted_currency,
-                                                    'trans_price' => $trans_price,
-                                                    'trans_currency' => $trans_currency,
-                                                    'total' => (float)$converted_price * $quantity
-                                                    //'buyer_id' => $buyer_id,
-                                                    //'shipping_country' => $shipping_country,
-                                                    //'shipping_postal' => $shipping_postal,
-                                                ));
+                            if (gettype($item_trans_xml) == 'object') {
+                                if (!isset($item_trans_xml->Errors) || empty(($item_trans_xml->Errors))) {
+                                    if (isset($item_trans_xml->TransactionArray)) {
+                                        foreach ($item_trans_xml->TransactionArray[0]->children() as $trans) {
+                                            $quantity = (int)$trans[0]->QuantityPurchased;
+                                            $trans_date = date("Y-m-d H:i:s", strtotime($trans[0]->CreatedDate));
+                                            $converted_price = (float)$trans[0]->ConvertedTransactionPrice;
+                                            $converted_currency = utf8_decode($trans[0]->ConvertedTransactionPrice['currencyID']);
+                                            $trans_price = (float)$trans[0]->TransactionPrice;
+                                            $trans_currency = utf8_decode($trans[0]->TransactionPrice['currencyID']);
+                                            //$buyer_id = $trans[0]->Buyer[0]->UserID;
+                                            //$shipping_country = $trans[0]->Buyer[0]->BuyerInfo[0]->ShippingAddress[0]->Country;
+                                            //$shipping_postal = $trans[0]->Buyer[0]->BuyerInfo[0]->ShippingAddress[0]->PostalCode;
+                                            $item_trans_extra_info[$item_id]['dirty_price'] = $trans_price;
+                                            if ($row = $this->db->get_row("SELECT ID FROM ds_ebay_item_trans WHERE item_id = '{$item_id}' AND trans_date = '{$trans_date}' AND quantity = '{$quantity}' AND converted_price = '{$converted_price}'")) {
+                                            } else {
+                                                $this->db->insert('ds_ebay_item_trans',
+                                                    array(
+                                                        'item_id' => $item_id,
+                                                        'seller_id' => $items[$item_id]['seller_id'],
+                                                        'quantity' => $quantity,
+                                                        'trans_date' => $trans_date,
+                                                        'converted_price' => $converted_price,
+                                                        'converted_currency' => $converted_currency,
+                                                        'trans_price' => $trans_price,
+                                                        'trans_currency' => $trans_currency,
+                                                        'total' => (float)$converted_price * $quantity
+                                                        //'buyer_id' => $buyer_id,
+                                                        //'shipping_country' => $shipping_country,
+                                                        //'shipping_postal' => $shipping_postal,
+                                                    ));
+                                            }
                                         }
                                     }
                                 }
@@ -807,7 +829,7 @@ class Scrapper {
             if ($curl = curl_init()) {
                 curl_setopt($curl, CURLOPT_URL, $seller_items_url);
                 curl_setopt($curl, CURLOPT_HEADER, 0);
-                curl_setopt($curl, CURLOPT_TIMEOUT, 300);
+                curl_setopt($curl, CURLOPT_TIMEOUT, 600);
                 curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
                 
                 curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1);
@@ -826,7 +848,7 @@ class Scrapper {
                                 $item_id = 0;
                                 $item_url = $item_title = $title_url = "";
                                 if ($item_url_el = $item_el->find('h3.lvtitle a', 0)) {
-                                    $item_url = $item_url_el->href;                                
+                                    $item_url = $item_url_el->href;
                                     $item_title = str_replace("'", "", $item_url_el->plaintext);
                                     if (preg_match('#itm\/(.*?)\/#', $item_url, $match)) {
                                         $title_url = $match[1];
@@ -942,9 +964,9 @@ class Scrapper {
                         'copies' => null
                     )
                 );
-
+                
                 $items = $this->get_seller_items_by_page($seller_id, $name);
-                if (count($items) > SELLER_MAX_ITEM) {                    
+                if (count($items) > SELLER_MAX_ITEM) {
                     $now_date = date("Y-m-d H:i:s");
                     $this->db->update('ds_ebay_sellers', array('items_count' => 0, 'checked' => 1, 'completed' => 1, 'update_date' => $now_date, 'overflow' => 1), array('ID' => $seller_id));
                     return;
@@ -1083,6 +1105,7 @@ class Scrapper {
                         } while($item_while_condition);
                     }
                 }
+                
                 if ($items_data['pending']['trans']) {
                     foreach ($items_data['pending']['trans'] as $item_id) {
                         $item_while_condition = 1;
@@ -1097,26 +1120,33 @@ class Scrapper {
                         } while($item_while_condition);
                     }
                 }
-
+                
                 if ($seller_items = $this->db->get_results("SELECT item_id, total_sold, copies_checked, copies_update, copies_completed FROM ds_ebay_items WHERE seller_id = '{$seller_id}' AND item_status = 1")) {
                     $now_date = date("Y-m-d H:i:s");
                     $copies_date_before = date("Y-m-d H:i:s", strtotime("$now_date -2 days"));
+                    $before_date = date("Y-m-d H:i:s", strtotime("$now_date -30 days" ));
                     foreach ($seller_items as $seller_item) {
                         $item_id = $seller_item['item_id'];
                         if ($seller_item['total_sold']) {
-                            if ($seller_item['copies_completed'] == 1) {
-                                if ($seller_item['copies_update'] < $copies_date_before) {
+                            $period_sold = 0;
+                            if ($solds = $this->db->get_row("SELECT SUM(quantity) FROM ds_ebay_item_trans WHERE trans_date >= '{$before_date}' AND item_id = '{$item_id}'")) {
+                                $period_sold = (int)$solds[0];
+                            }
+                            if ($period_sold) {
+                                if ($seller_item['copies_completed'] == 1) {
+                                    if ($seller_item['copies_update'] < $copies_date_before) {
+                                        if ($seller_item['copies_checked'] == 1) {
+                                            $this->db->update('ds_ebay_items', array('copies_checked' => 0), array('item_id' => $item_id));
+                                            $items_data['update']['copies'][] = $item_id;
+                                        }
+                                    }
+                                } else {
                                     if ($seller_item['copies_checked'] == 1) {
                                         $this->db->update('ds_ebay_items', array('copies_checked' => 0), array('item_id' => $item_id));
                                         $items_data['update']['copies'][] = $item_id;
+                                    } else {
+                                        $items_data['pending']['copies'][] = $item_id;
                                     }
-                                }
-                            } else {
-                                if ($seller_item['copies_checked'] == 1) {
-                                    $this->db->update('ds_ebay_items', array('copies_checked' => 0), array('item_id' => $item_id));
-                                    $items_data['update']['copies'][] = $item_id;
-                                } else {
-                                    $items_data['pending']['copies'][] = $item_id;
                                 }
                             }
                         }
@@ -1124,7 +1154,7 @@ class Scrapper {
                 }
                 
                 if ($items_data['update']['copies']) {
-                    $this->get_items_copies_url($items_data['update']['copies']);
+                    $this->get_items_copies($items_data['update']['copies']);
                 }
                 
                 if ($items_data['pending']['copies']) {
@@ -1141,7 +1171,7 @@ class Scrapper {
                         } while($item_while_condition);
                     }
                 }
-
+                
                 $items_count = 0;
                 if ($sellers_rows = $this->db->get_row("SELECT COUNT(ID) FROM ds_ebay_items WHERE item_status = 1 AND seller_id = '{$seller_id}'")) {
                     $items_count = $sellers_rows[0];
@@ -1192,7 +1222,7 @@ class Scrapper {
                     $result = true; 
                 }
             }
-
+            
             unset($curl);            
         }
         return $result;
@@ -1310,6 +1340,7 @@ class Scrapper {
     }
 
     public function get_competition_urls($item_id) {
+        $origial_item_id = $item_id;
         $result = null;
         if ( $row = $this->db->get_row("SELECT copies_url, seller_id FROM ds_ebay_items WHERE item_id = '{$item_id}'") ) {
             if ($row[0]) {
@@ -1480,7 +1511,7 @@ class Scrapper {
                                     if ($pending_status) {
                                         usleep(1000 * 1000 * 10);
                                     }
-                                } while($pending_status);                                
+                                } while($pending_status);
                             }
                         }
                         
@@ -1499,6 +1530,19 @@ class Scrapper {
                                     );
                                 }
                             }
+                        } else {
+                            if ($row = $this->db->get_row("SELECT image, url, title, total_sold, price, dirty_price, seller_name FROM ds_ebay_items WHERE item_id = '{$origial_item_id}'")) {
+                                $result[] = array(
+                                    'item_id' => $origial_item_id,
+                                    'image' => $row[0],
+                                    'url' => $row[1],
+                                    'title' => $row[2],
+                                    'total_sold' => $row[3],
+                                    'price' => $row[4],
+                                    'dirty_price' => $row[5],
+                                    'seller_name' => $row[6]
+                                );
+                            }
                         }
                     } else {
                         unset($curl);
@@ -1506,6 +1550,7 @@ class Scrapper {
                 }
             }
         }
+        
         return $result;
     }
 
@@ -2178,7 +2223,7 @@ class Scrapper {
                                 } else {
                                     $result = "Scrap Error";
                                     return $result;
-                                }                                
+                                }
                             }
                         }
                     } 

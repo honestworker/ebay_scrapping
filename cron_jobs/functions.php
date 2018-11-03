@@ -27,7 +27,7 @@
     
     define( "EBAY_ITEM_TRANSACTION_ONE_TIME_COUNT", 300 );
     define( "EBAY_ITEM_INFO_ONE_TIME_COUNT",        300 );
-    define( "EBAY_COPIES_ITEM_ONE_TIME",            300 );
+    define( "EBAY_COPIES_ITEM_ONE_TIME",            100 );
     define( "EBAY_FIND_ITEMS_ONE_TIME_COUNT",       50 );
     
     define( "EBAY_FIND_URL",                        "http://svcs.ebay.com/services/search/FindingService/v1?operation-name=findItemsAdvanced&global-id=" );
@@ -48,7 +48,7 @@
     define( "EBAY_TRANS_CURL_MULTI_COUNT",          30 );
     define( "EBAY_CURL_MULTI_COUNT",                200 );
     define( "EBAY_CURL_MULTI_SLEEP",                50 );
-    define( "EBAY_PENDING_SLEEP",                   1000 * 1000 );
+    define( "EBAY_PENDING_SLEEP",                   1000 * 1000 * 5 );
 
     define( "EBAY_US_URL",                          "https://www.ebay.com" );
     define( "EBAY_UK_URL",                          "https://www.ebay.co.uk" );
@@ -58,7 +58,7 @@
     define( "EBAY_SELLER_ITEM_UK_URL",              "https://www.ebay.co.uk/sch/m.html?_nkw=&_armrs=1&_from=&_fcid=" );
     define( "EBAY_SELLER_ITEM_URL",                 "&_sop=10&_ssn=" );
     define( "EBAY_SELLER_ITEM_PER_PAGE",            200 );
-
+    
     define( "EBAY_SHOP_ITEM_PER_PAGE",              48 );
 
     define( "EBAY_ITEM_URL",                        "http://open.api.ebay.com/shopping?callname=GetSingleItem&responseencoding=JSON&appid=" );
@@ -119,8 +119,8 @@
         );
 
         $result_ebay_app_name = $EBAY_APP_NAME[0];
-        if (isset($EBAY_APP_NAME[$app_no])) {
-            $result_ebay_app_name = $EBAY_APP_NAME[$app_no];
+        if (isset($EBAY_APP_NAME[$app_no - 1])) {
+            $result_ebay_app_name = $EBAY_APP_NAME[$app_no - 1];
         }
         return $result_ebay_app_name;
     }
@@ -130,8 +130,8 @@
         );
 
         $result_ebay_dev_name = $EBAY_DEV_NAME[0];
-        if (isset($EBAY_DEV_NAME[$app_no])) {
-            $result_ebay_dev_name = $EBAY_DEV_NAME[$app_no];
+        if (isset($EBAY_DEV_NAME[$app_no - 1])) {
+            $result_ebay_dev_name = $EBAY_DEV_NAME[$app_no - 1];
         }
         return $result_ebay_dev_name;
     }
@@ -141,8 +141,8 @@
         );
 
         $result_ebay_cert_name = $EBAY_CERT_NAME[0];
-        if (isset($EBAY_CERT_NAME[$app_no])) {
-            $result_ebay_cert_name = $EBAY_CERT_NAME[$app_no];
+        if (isset($EBAY_CERT_NAME[$app_no - 1])) {
+            $result_ebay_cert_name = $EBAY_CERT_NAME[$app_no - 1];
         }
         return $result_ebay_cert_name;
     }
@@ -152,8 +152,8 @@
         );
 
         $result_ebay_token_name = $EBAY_TOKEN_NAME[0];
-        if (isset($EBAY_TOKEN_NAME[$app_no])) {
-            $result_ebay_token_name = $EBAY_TOKEN_NAME[$app_no];
+        if (isset($EBAY_TOKEN_NAME[$app_no - 1])) {
+            $result_ebay_token_name = $EBAY_TOKEN_NAME[$app_no - 1];
         }
         return $result_ebay_token_name;
     }
@@ -202,8 +202,7 @@
         $return_url = $return_url . "&_ipg=" . EBAY_SELLER_ITEM_PER_PAGE . "&rt=nc";
         return $return_url;
     }
-
-    function get_item_copies_word($title) {
+        function get_item_copies_word($title) {
         $result_word = $word = "";
         $word_status = 1;
         for ($str_no = 0, $str_len = strlen($title); $str_no < $str_len; $str_no++) {
@@ -247,7 +246,7 @@
         }
         return $result_word;
     }
-    
+
     function get_item_copies_url($country, $item_id, $title) {
         /*
             "https://{{host}}/sch/i.html?_nkw={{name}}&_clu=2&_fcid={{countryId}}&_localstpos&_stpos&gbr=1&LH_BIN=1"
@@ -321,14 +320,14 @@
                     "X-EBAY-API-CALL-NAME:" . "GetItemTransactions",
                     "X-EBAY-API-APP-NAME:" . get_ebay_api_app_name($app_no),
                     "X-EBAY-API-DEV-NAME:" . get_ebay_api_dev_name($app_no),
-                    "X-EBAY-API-CERT-NAME:". get_ebay_api_cert_name($app_no));
+                    "X-EBAY-API-CERT-NAME:" . get_ebay_api_cert_name($app_no));
         } else if ($country == "EBAY-US") {
             $html_request_head = array("X-EBAY-API-SITEID:0",
                     "X-EBAY-API-COMPATIBILITY-LEVEL:" . EBAY_API_VERSION,
                     "X-EBAY-API-CALL-NAME:" . "GetItemTransactions",
                     "X-EBAY-API-APP-NAME:" . get_ebay_api_app_name($app_no),
                     "X-EBAY-API-DEV-NAME:" . get_ebay_api_dev_name($app_no),
-                    "X-EBAY-API-CERT-NAME:". get_ebay_api_cert_name($app_no));
+                    "X-EBAY-API-CERT-NAME:" . get_ebay_api_cert_name($app_no));
         }
         
         return $html_request_head;
@@ -451,7 +450,7 @@
             }
             $url .= '&descriptionSearch=true';
             $url .= '&security-appname='. get_ebay_api_app_name($app_no);
-            
+                        
             if (isset($conditions['format']))
             {
                 $url .= '&response-data-format=' . $conditions['format'];
