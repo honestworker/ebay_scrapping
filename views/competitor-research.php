@@ -58,6 +58,7 @@
                             <th>Current Price</th>
                             <th>Sold Price</th>
                             <th>Seller ID</th>
+                            <th>Feedback</th>
                             </tr>
                         </thead>
                         <tbody class="items-competition-table"></tbody>
@@ -245,7 +246,7 @@
                     <th>Total sold</th>
                     <th>Upload date</th>
                     <th>Price</th>
-                    <th>小ompetition</th>
+                    <th>Competition</th>
                 </tr>
             </thead>
             <tbody class="items-table"></tbody>
@@ -268,9 +269,15 @@
         width: 100px !important;
         margin-left: 30px;
     }
+    
+    .table-striped>tbody>tr:nth-of-type(odd) {
+        background-color: #f2f2f2;
+    }
+    
     .table-striped>tbody>tr.selected {
         background-color: #00c0ef;
     }
+    
     .row-competitor-research {
         margin-top: 30px;
         margin-left:15px;
@@ -307,4 +314,5 @@
     
     .table-bordered>thead>tr>th, .table-bordered>thead>tr>td {
         border-bottom-width: 0px;
+    }
 </style>

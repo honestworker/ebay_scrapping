@@ -1349,7 +1349,7 @@ class Scrapper {
                 if ($curl = curl_init()) {
                     curl_setopt($curl, CURLOPT_URL, $row[0]);
                     curl_setopt($curl, CURLOPT_HEADER, 0);
-                    curl_setopt($curl, CURLOPT_TIMEOUT, 500);
+                    curl_setopt($curl, CURLOPT_TIMEOUT, 1000);
                     curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
                     
                     curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1);
@@ -1517,7 +1517,7 @@ class Scrapper {
                         
                         if ($items) {
                             foreach ($items as $item_id) {
-                                if ($row = $this->db->get_row("SELECT image, url, title, total_sold, price, dirty_price, seller_name FROM ds_ebay_items WHERE item_id = '{$item_id}'")) {
+                                if ($row = $this->db->get_row("SELECT image, url, title, total_sold, price, dirty_price, seller_name, seller_feedback FROM ds_ebay_items WHERE item_id = '{$item_id}'")) {
                                     $result[] = array(
                                         'item_id' => $item_id,
                                         'image' => $row[0],
@@ -1526,12 +1526,13 @@ class Scrapper {
                                         'total_sold' => $row[3],
                                         'price' => $row[4],
                                         'dirty_price' => $row[5],
-                                        'seller_name' => $row[6]
+                                        'seller_name' => $row[6],
+                                        'seller_feedback' => $row[7]
                                     );
                                 }
                             }
                         } else {
-                            if ($row = $this->db->get_row("SELECT image, url, title, total_sold, price, dirty_price, seller_name FROM ds_ebay_items WHERE item_id = '{$origial_item_id}'")) {
+                            if ($row = $this->db->get_row("SELECT image, url, title, total_sold, price, dirty_price, seller_name, seller_feedback FROM ds_ebay_items WHERE item_id = '{$origial_item_id}'")) {
                                 $result[] = array(
                                     'item_id' => $origial_item_id,
                                     'image' => $row[0],
@@ -1540,7 +1541,8 @@ class Scrapper {
                                     'total_sold' => $row[3],
                                     'price' => $row[4],
                                     'dirty_price' => $row[5],
-                                    'seller_name' => $row[6]
+                                    'seller_name' => $row[6],
+                                    'seller_feedback' => $row[7]
                                 );
                             }
                         }

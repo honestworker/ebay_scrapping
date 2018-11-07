@@ -64,7 +64,7 @@ jQuery(document).ready(function() {
     			    'paging'        : true,
     			    'ordering'      : true,
     			    'order'         : [[ 2, "desc" ]],
-    			    'sDom'          : '<"row"<"col-md-6"l><"col-md-6"f>><"row"i>rtp'
+                    'sDom'          : '<"row"<"col-md-6"l><"col-md-6"f>><"row"i>rtp',
     			})
     			.on('draw', function(e) {
     				var comp_items = $('.items-competition-table tr'), item_index = 0;
@@ -83,7 +83,7 @@ jQuery(document).ready(function() {
             if (resp['data']) {
                 for( var i = 0; i < resp['data'].length; i++ ) {
                     var item = resp['data'][i];
-                    t.push(['<img src="' + item['image'] + '"' + ' data-item-id="' + item['item_id'] + '">', '<a href="'+ item['url'] + '" target="_blank">' + item['title'] + '</a>', item['total_sold'], item['price'], item['dirty_price'], '<a href="'+ BASE_URL + 'index.php/account/competitor-research#' + item['seller_name'] + '" target="_blank">' + item['seller_name'] + '</a>'])
+                    t.push(['<img src="' + item['image'] + '"' + ' data-item-id="' + item['item_id'] + '">', '<a href="'+ item['url'] + '" target="_blank">' + item['title'] + '</a>', item['total_sold'], item['price'], item['dirty_price'], '<a href="'+ BASE_URL + 'index.php/account/competitor-research#' + item['seller_name'] + '" target="_blank">' + item['seller_name'] + '</a>', item['seller_feedback']])
                 }
             }
 			table.rows.add(t).draw();
@@ -104,6 +104,10 @@ jQuery(document).ready(function() {
     $.fn.dataTable.ext.search.push(
         function( settings, data, dataIndex ) {
             if (data.length < 7){
+                return true;
+            }
+
+            if (settings.aoColumns[6].sTitle == 'Feedback') {
                 return true;
             }
             
@@ -157,7 +161,25 @@ jQuery(document).ready(function() {
             return true;
         }
     );
-    
+
+    jQuery.extend( jQuery.fn.dataTableExt.oSort, {
+        "competitor-pre": function ( a ) {
+            var myregexp = new RegExp('\[Competition ][0-9]+');
+            var match = myregexp.exec(a);
+            if (match != null) {
+                return Number(match[0]);
+            } else {
+                return 0;
+            }
+        },
+        "competitor-asc": function ( a, b ) {
+            return a - b;
+        },
+        "competitor-desc": function ( a, b ) {
+            return b - a;
+        }
+    });
+
 	function view_seller_info(seller_data) {
         $('[data-key="sell_rate"]').html(seller_data['sell_rate']);
         $('[data-key="sold_items"]').html(seller_data['sold_items']);
@@ -186,7 +208,7 @@ jQuery(document).ready(function() {
             "order": [[ 2, "desc" ]],
             sDom:'<"row"<"col-md-6"l><"col-md-6"f>><"row"i>rtp',
             "columnDefs": [
-                { "type": "date-eu", targets: 4 }
+                { "type": "competitor", targets: 6 }
             ]
         });
         
